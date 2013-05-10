@@ -5,7 +5,10 @@
     "autoload": {
         "psr-0": {
             "ZealOrm": "src/"
-        }
+        },
+        "classmap": [
+            "./Module.php"
+        ]
     },
     "authors": [{
         "name": "Tim Fountain",
