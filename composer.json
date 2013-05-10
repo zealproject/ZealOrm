@@ -1,0 +1,19 @@
+{
+    "name": "zealproject/ZealOrm",
+    "description": "ORM layer for Zend Framework 2 applications",
+    "license": "BSD-3-Clause",
+    "autoload": {
+        "psr-0": {
+            "ZealOrm": "src/"
+        }
+    },
+    "authors": [{
+        "name": "Tim Fountain",
+        "email": "tim@tfountain.co.uk",
+        "homepage": "http://tfountain.co.uk/",
+        "role": "developer"
+    }],
+    "require": {
+        "php": ">=5.3.3"
+    }
+}
