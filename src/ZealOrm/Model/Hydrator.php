@@ -13,6 +13,21 @@ use Zend\Stdlib\Hydrator\AbstractHydrator;
 
 class Hydrator extends AbstractHydrator
 {
+    protected $fields;
+
+
+    public function setFields(array $fieldTypes)
+    {
+        $this->fieldTypes = $fieldTypes;
+
+        return $this;
+    }
+
+    public function getFields()
+    {
+        return $this->fieldTypes;
+    }
+
     public function extract($object)
     {
         if (!is_callable(array($object, 'getArrayCopy'))) {
@@ -36,14 +51,27 @@ class Hydrator extends AbstractHydrator
 
     public function hydrate(array $data, $object)
     {
-        $fieldTypes = array(
-            'createdAt' => 'datetime'
-        );
+        $fieldTypes = $this->getFields();
+
         foreach ($data as $key => $value) {
-            if (isset($fieldTypes[$key])) {
-                if ($fieldTypes[$key] == 'datetime') {
+            $fieldType = isset($fieldTypes[$key]) ? $fieldTypes[$key] : 'string';
+            switch ($fieldType) {
+                case 'integer':
+                    $data[$key] = (int)$value;
+                    break;
+
+                case 'boolean':
+                    $data[$key] = (bool)$value;
+                    break;
+
+                case 'datetime':
                     $data[$key] = new \ZealOrm\DateTime($value);
-                }
+                    break;
+
+                case 'string':
+                default:
+                    // leave array entry unchanged
+                    break;
             }
         }
 

@@ -26,6 +26,11 @@ class Db extends AbstractAdapter
         $this->db = $db;
     }
 
+    public function getDb()
+    {
+        return $this->db;
+    }
+
     public function getTableName()
     {
         return $this->options['tableName'];

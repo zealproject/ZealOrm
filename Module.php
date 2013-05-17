@@ -9,22 +9,16 @@
 
 namespace ZealOrm;
 
+use Zend\Mvc\MvcEvent;
 use ZealOrm\Mapper\Adapter\Zend\Db;
+use ZealOrm\Orm;
 
 class Module
 {
-    /*public function onBootstrap(MvcEvent $e)
+    public function onBootstrap(MvcEvent $e)
     {
-        $e->getApplication()->getServiceManager()->get('translator');
-        $eventManager        = $e->getApplication()->getEventManager();
-        $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);
+        Orm::setServiceLocator($e->getApplication()->getServiceManager());
     }
-
-    public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }*/
 
     public function getAutoloaderConfig()
     {
@@ -48,6 +42,10 @@ class Module
 
                     return $adapter;
                 }
+            ),
+
+            'abstract_factories' => array(
+                'ZealOrm\Services\MapperAbstractFactory'
             ),
         );
     }

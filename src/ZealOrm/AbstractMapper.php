@@ -10,6 +10,7 @@
 namespace ZealOrm;
 
 use ZealOrm\Mapper\Adapter\Zend\Db;
+use ZealOrm\Model\Hydrator;
 
 abstract class AbstractMapper
 {
@@ -20,6 +21,8 @@ abstract class AbstractMapper
     protected $adapterOptions = array();
 
     protected $fields = array();
+
+    protected $hydrator;
 
 
     public function getClassName()
@@ -63,6 +66,23 @@ abstract class AbstractMapper
         return $this->adapterOptions;
     }
 
+    public function setHydrator($hydrator)
+    {
+        $this->hydrator = $hydrator;
+
+        return $this;
+    }
+
+    public function getHydrator()
+    {
+        if (!$this->hydrator) {
+            $this->hydrator = new Hydrator();
+            $this->hydrator->setFields($this->getFields());
+        }
+
+        return $this->hydrator;
+    }
+
     public function buildQuery()
     {
         return $this->getAdapter()->buildQuery();
@@ -79,7 +99,8 @@ abstract class AbstractMapper
     {
         $className = $this->getClassName();
         $object = new $className();
-        $object->hydrate((array)$data, $object);
+
+        $this->getHydrator()->hydrate((array)$data, $object);
 
         return $object;
     }
@@ -157,5 +178,22 @@ abstract class AbstractMapper
         $this->prepare($object);
 
         return $this->getAdapter()->create($object);
+    }
+
+    public function initAssociation($type, $options = array())
+    {
+        $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
+
+        return $association;
+    }
+
+    public function buildQueryForAssociation($association)
+    {
+        $query = $this->buildQuery();
+
+        $query = $this->getAdapter()->populateAssociationQuery($query, $association);
+
+var_dump($query);exit;
+        return $query;
     }
 }

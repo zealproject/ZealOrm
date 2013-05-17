@@ -13,14 +13,35 @@ use ZealOrm\Mapper\Registry;
 
 class Orm
 {
+    protected static $serviceLocator;
+
     protected static $mapperRegistry;
+
+    public static function setServiceLocator($serviceLocator)
+    {
+        self::$serviceLocator = $serviceLocator;
+    }
+
+    public static function getServiceLocator()
+    {
+        return self::$serviceLocator;
+    }
 
     public static function getMapper($objectOrClassName)
     {
-        if (!self::$mapperRegistry) {
-            self::$mapperRegistry = new Registry();
+        if (is_object($objectOrClassName)) {
+            $objectOrClassName = get_class($objectOrClassName);
         }
 
-        return self::$mapperRegistry->getMapper($objectOrClassName);
+        $mapperClassName = self::getMapperClassName($objectOrClassName);
+
+        return self::getServiceLocator()->get($mapperClassName);
+    }
+
+    public static function getMapperClassName($className)
+    {
+        // TODO do this with a closure instead so the mapper class name convention can
+        // easily be changed?
+        return $className.'Mapper';
     }
 }

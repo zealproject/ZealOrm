@@ -19,4 +19,9 @@ abstract class AbstractAdapter
 
         return $this;
     }
+
+    public function getOption($key, $default = null)
+    {
+        return $this->options[$key];
+    }
 }
