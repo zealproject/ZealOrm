@@ -11,6 +11,7 @@ namespace ZealOrm;
 
 use ZealOrm\Mapper\Adapter\Zend\Db;
 use ZealOrm\Model\Hydrator;
+use ZealOrm\Model\Association\AssociationInterface;
 
 abstract class AbstractMapper
 {
@@ -182,7 +183,23 @@ abstract class AbstractMapper
 
     public function initAssociation($type, $options = array())
     {
-        $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
+        // FIXME delegate this to the adapter so that the DB association classes aren't hard-coded here
+
+        if ($type == AssociationInterface::BELONGS_TO) {
+            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\BelongsTo($options);
+
+        } else if ($type == AssociationInterface::HAS_ONE) {
+            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasOne($options);
+
+        } else if ($type == AssociationInterface::HAS_MANY) {
+            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasMany($options);
+
+        } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
+            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
+
+        } else {
+            throw new Exception('Attempted to initialise unknown association type');
+        }
 
         return $association;
     }
@@ -193,7 +210,6 @@ abstract class AbstractMapper
 
         $query = $this->getAdapter()->populateAssociationQuery($query, $association);
 
-var_dump($query);exit;
         return $query;
     }
 }

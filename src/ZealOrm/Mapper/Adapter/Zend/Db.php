@@ -9,8 +9,8 @@
 
 namespace ZealOrm\Mapper\Adapter\Zend;
 
-use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Sql\Sql;
+//use Zend\Db\TableGateway\TableGateway;
+use ZealOrm\Mapper\Adapter\Zend\Db\Sql\Sql;
 use ZealOrm\Mapper\AbstractAdapter;
 
 class Db extends AbstractAdapter

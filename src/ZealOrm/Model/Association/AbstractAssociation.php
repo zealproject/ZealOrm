@@ -138,11 +138,4 @@ abstract class AbstractAssociation implements AssociationInterface
     {
         return $this->targetClassName;
     }
-
-    public function loadData()
-    {
-        $query = $this->buildQuery();
-
-        return $this->getTargetMapper()->fetchAll($query);
-    }
 }

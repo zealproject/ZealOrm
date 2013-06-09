@@ -68,6 +68,12 @@ class Hydrator extends AbstractHydrator
                     $data[$key] = new \ZealOrm\DateTime($value);
                     break;
 
+                case 'serialized':
+                    if (!empty($value)) {
+                        $data[$key] = unserialize($value);
+                    }
+                    break;
+
                 case 'string':
                 default:
                     // leave array entry unchanged

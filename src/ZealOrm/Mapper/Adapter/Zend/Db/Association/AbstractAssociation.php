@@ -11,16 +11,16 @@ abstract class AbstractAssociation extends ModelAbstractAssociation
         return $this->getTargetMapper()->getAdapter()->getOption('tableName');
     }
 
-    public function getSourceColumnValue($source, $column)
+    public function getColumnValue($model, $column)
     {
         if ($column == 'class') {
-            return get_class($source);
+            return get_class($model);
         } else if ($column == 'classID') {
-            $mapper = Zeal_Orm::getMapper($source);
+            $mapper = Zeal_Orm::getMapper($model);
             $primaryKey = $mapper->getAdapter()->getPrimaryKey();
-            return $source->$primaryKey;
+            return $model->$primaryKey;
         } else {
-            return $source->$column;
+            return $model->$column;
         }
     }
 }

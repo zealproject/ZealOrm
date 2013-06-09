@@ -49,7 +49,7 @@ abstract class AbstractModel
             return $this->$getMethodName();
 
         } else if (property_exists($this, $var)) {
-            if ($this->isAssociation($var)) {
+            if ($this->$var === null && $this->isAssociation($var)) {
                 $this->$var = $this->getAssociation($var)->loadData();
             }
 

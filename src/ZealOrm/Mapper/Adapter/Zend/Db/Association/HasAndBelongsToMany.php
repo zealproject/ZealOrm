@@ -43,7 +43,7 @@ class HasAndBelongsToMany extends AbstractAssociation
         if (is_array($foreignKey)) {
             $query = $this->getMapper()->query();
             foreach ($foreignKey as $foreignKeyColumn) {
-                $value = $this->getSourceColumnValue($this->getSource(), $foreignKeyColumn);
+                $value = $this->getColumnValue($this->getSource(), $foreignKeyColumn);
                 if (!$value) {
                     return false;
                 }
@@ -52,7 +52,7 @@ class HasAndBelongsToMany extends AbstractAssociation
             }
 
         } else {
-            $value = $this->getSourceColumnValue($this->getSource(), $foreignKeyValueColumn);
+            $value = $this->getColumnValue($this->getSource(), $foreignKeyValueColumn);
 
             if (empty($value)) {
                 return false;
@@ -73,5 +73,12 @@ class HasAndBelongsToMany extends AbstractAssociation
         // exit;
 
         return $query;
+    }
+
+    public function loadData()
+    {
+        $query = $this->buildQuery();
+
+        return $this->getTargetMapper()->fetchAll($query);
     }
 }
