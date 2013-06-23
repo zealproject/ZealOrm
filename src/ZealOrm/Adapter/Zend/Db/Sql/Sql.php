@@ -1,6 +1,6 @@
 <?php
 
-namespace ZealOrm\Mapper\Adapter\Zend\Db\Sql;
+namespace ZealOrm\Adapter\Zend\Db\Sql;
 
 use Zend\Db\Sql\Sql as ZendSql;
 

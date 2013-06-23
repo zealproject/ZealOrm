@@ -7,11 +7,12 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm\Mapper\Adapter\Zend;
+namespace ZealOrm\Adapter\Zend;
 
-//use Zend\Db\TableGateway\TableGateway;
-use ZealOrm\Mapper\Adapter\Zend\Db\Sql\Sql;
-use ZealOrm\Mapper\AbstractAdapter;
+use Zend\Db\TableGateway\TableGateway;
+//use ZealOrm\Adapter\Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Sql;
+use ZealOrm\Adapter\AbstractAdapter;
 
 class Db extends AbstractAdapter
 {
@@ -104,9 +105,8 @@ class Db extends AbstractAdapter
         }
     }
 
-    public function create($object)
+    public function create($data)
     {
-        $data = $object->extract($object);
         $this->getTableGateway()->insert($data);
 
         return true;

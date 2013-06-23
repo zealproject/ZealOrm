@@ -7,9 +7,9 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm;
+namespace ZealOrm\Mapper;
 
-use ZealOrm\Mapper\Adapter\Zend\Db;
+use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Model\Hydrator;
 use ZealOrm\Model\Association\AssociationInterface;
 
@@ -67,6 +67,11 @@ abstract class AbstractMapper
         return $this->adapterOptions;
     }
 
+    /**
+     * Setter for the hydrator
+     *
+     * @param [type] $hydrator [description]
+     */
     public function setHydrator($hydrator)
     {
         $this->hydrator = $hydrator;
@@ -74,6 +79,11 @@ abstract class AbstractMapper
         return $this;
     }
 
+    /**
+     * Returns the hydrator
+     *
+     * @return ZealOrm\Model\Hydrator [description]
+     */
     public function getHydrator()
     {
         if (!$this->hydrator) {
@@ -186,16 +196,16 @@ abstract class AbstractMapper
         // FIXME delegate this to the adapter so that the DB association classes aren't hard-coded here
 
         if ($type == AssociationInterface::BELONGS_TO) {
-            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\BelongsTo($options);
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\BelongsTo($options);
 
         } else if ($type == AssociationInterface::HAS_ONE) {
-            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasOne($options);
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasOne($options);
 
         } else if ($type == AssociationInterface::HAS_MANY) {
-            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasMany($options);
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasMany($options);
 
         } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
-            $association = new \ZealOrm\Mapper\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
 
         } else {
             throw new Exception('Attempted to initialise unknown association type');

@@ -1,8 +1,8 @@
 <?php
 
-namespace ZealOrm\Mapper\Adapter\Zend\Db\Association;
+namespace ZealOrm\Adapter\Zend\Db\Association;
 
-use ZealOrm\Mapper\Adapter\Zend\Db\Association\AbstractAssociation;
+use ZealOrm\Adapter\Zend\Db\Association\AbstractAssociation;
 
 class BelongsTo extends AbstractAssociation
 {

@@ -7,7 +7,7 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm;
+namespace ZealOrm\Model;
 
 use ZealOrm\Orm;
 use ZealOrm\Model\Association\AssociationInterface;

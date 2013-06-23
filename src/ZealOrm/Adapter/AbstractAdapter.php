@@ -7,9 +7,11 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm\Mapper;
+namespace ZealOrm\Adapter;
 
-abstract class AbstractAdapter
+use ZealOrm\Adapter\AdapterInterface;
+
+abstract class AbstractAdapter implements AdapterInterface
 {
     protected $options = array();
 

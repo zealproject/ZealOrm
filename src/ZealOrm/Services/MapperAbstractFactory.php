@@ -14,6 +14,14 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 
 class MapperAbstractFactory implements AbstractFactoryInterface
 {
+    /**
+     * [canCreateServiceWithName description]
+     *
+     * @param  ServiceLocatorInterface $serviceLocator [description]
+     * @param  [type]                  $name           [description]
+     * @param  [type]                  $requestedName  [description]
+     * @return [type]                                  [description]
+     */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         if (substr($requestedName, -6) == 'Mapper' && class_exists($requestedName)) {
@@ -23,11 +31,19 @@ class MapperAbstractFactory implements AbstractFactoryInterface
         return false;
     }
 
+    /**
+     * [createServiceWithName description]
+     *
+     * @param  ServiceLocatorInterface $serviceLocator [description]
+     * @param  [type]                  $name           [description]
+     * @param  [type]                  $requestedName  [description]
+     * @return [type]                                  [description]
+     */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $mapper = new $requestedName();
 
-        $adapter = clone $serviceLocator->get('ZealOrm\Mapper\Adapter\Zend\Db');
+        $adapter = clone $serviceLocator->get('ZealOrm\Adapter\Zend\Db');
         $adapter->setOptions($mapper->getAdapterOptions());
 
         $mapper->setAdapter($adapter);

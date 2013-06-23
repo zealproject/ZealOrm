@@ -10,6 +10,8 @@
 namespace ZealOrm\Model;
 
 use Zend\Stdlib\Hydrator\AbstractHydrator;
+use ZealOrm\DateTime;
+use Zend\Exception;
 
 class Hydrator extends AbstractHydrator
 {
@@ -30,7 +32,34 @@ class Hydrator extends AbstractHydrator
 
     public function extract($object)
     {
-        if (!is_callable(array($object, 'getArrayCopy'))) {
+        $fieldTypes = $this->getFields();
+
+        $data = array();
+        foreach ($fieldTypes as $field => $fieldType) {
+            switch ($fieldType) {
+                case 'datetime':
+                    if ($object->$field) {
+                        $data[$field] = $object->$field->format('Y-m-d H:i:s');
+                    } else {
+                        $data[$field] = null;
+                    }
+                    break;
+
+                case 'date':
+                    if ($object->$field) {
+                        $data[$field] = $object->$field->format('Y-m-d');
+                    } else {
+                        $data[$field] = null;
+                    }
+                    break;
+
+                default:
+                    $data[$field] = $object->$field;
+                    break;
+            }
+        }
+
+        /*if (!is_callable(array($object, 'getArrayCopy'))) {
             throw new Exception\BadMethodCallException(sprintf(
                 '%s expects the provided object to implement getArrayCopy()', __METHOD__
             ));
@@ -44,7 +73,7 @@ class Hydrator extends AbstractHydrator
             } else {
                 $value = $self->extractValue($name, $value);
             }
-        });
+        });*/
 
         return $data;
     }
@@ -65,7 +94,11 @@ class Hydrator extends AbstractHydrator
                     break;
 
                 case 'datetime':
-                    $data[$key] = new \ZealOrm\DateTime($value);
+                    if ($value instanceof DateTime) {
+                        $data[$key] = $value;
+                    } else {
+                        $data[$key] = new DateTime($value);
+                    }
                     break;
 
                 case 'serialized':

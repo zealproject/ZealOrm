@@ -38,6 +38,12 @@ class Orm
         return self::getServiceLocator()->get($mapperClassName);
     }
 
+    public static function getDefaultAdapter()
+    {
+        // TODO make the default adapter configurable?
+        return self::getServiceLocator()->get('ZealOrm\Adapter\Zend\Db');
+    }
+
     public static function getMapperClassName($className)
     {
         // TODO do this with a closure instead so the mapper class name convention can

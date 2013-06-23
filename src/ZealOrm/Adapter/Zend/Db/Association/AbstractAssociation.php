@@ -1,6 +1,6 @@
 <?php
 
-namespace ZealOrm\Mapper\Adapter\Zend\Db\Association;
+namespace ZealOrm\Adapter\Zend\Db\Association;
 
 use ZealOrm\Model\Association\AbstractAssociation as ModelAbstractAssociation;
 

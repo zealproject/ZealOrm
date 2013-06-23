@@ -10,7 +10,7 @@
 namespace ZealOrm;
 
 use Zend\Mvc\MvcEvent;
-use ZealOrm\Mapper\Adapter\Zend\Db;
+use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Orm;
 
 class Module
@@ -35,7 +35,7 @@ class Module
     {
         return array(
             'factories' => array(
-                'ZealOrm\Mapper\Adapter\Zend\Db' => function($sm) {
+                'ZealOrm\Adapter\Zend\Db' => function($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
 
                     $adapter = new Db($dbAdapter);
