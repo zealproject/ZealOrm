@@ -7,7 +7,7 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm\Services;
+namespace ZealOrm\Service;
 
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -43,10 +43,16 @@ class MapperAbstractFactory implements AbstractFactoryInterface
     {
         $mapper = new $requestedName();
 
-        $adapter = clone $serviceLocator->get('ZealOrm\Adapter\Zend\Db');
-        $adapter->setOptions($mapper->getAdapterOptions());
+        $adapterName = $mapper->getAdapterName();
+        if ($adapterName) {
 
-        $mapper->setAdapter($adapter);
+            $adapter = $serviceLocator->get($adapterName);
+            $adapter->setOptions($mapper->getAdapterOptions());
+
+            $mapper->setAdapter($adapter);
+        } else {
+            // no adapter name? error here?
+        }
 
         return $mapper;
     }

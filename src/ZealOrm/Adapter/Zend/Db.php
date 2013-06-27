@@ -10,9 +10,9 @@
 namespace ZealOrm\Adapter\Zend;
 
 use Zend\Db\TableGateway\TableGateway;
-//use ZealOrm\Adapter\Zend\Db\Sql\Sql;
 use Zend\Db\Sql\Sql;
 use ZealOrm\Adapter\AbstractAdapter;
+use ZealOrm\Model\Association\AssociationInterface;
 
 class Db extends AbstractAdapter
 {
@@ -34,6 +34,10 @@ class Db extends AbstractAdapter
 
     public function getTableName()
     {
+        if (empty($this->options['tableName'])) {
+            throw new \Exception('Unable to use Zend DB adapter without a tableName');
+        }
+
         return $this->options['tableName'];
     }
 
@@ -49,6 +53,27 @@ class Db extends AbstractAdapter
         }
 
         return $this->tableGateway;
+    }
+
+    public function buildAssociation($type, $options)
+    {
+        if ($type == AssociationInterface::BELONGS_TO) {
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\BelongsTo($options);
+
+        } else if ($type == AssociationInterface::HAS_ONE) {
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasOne($options);
+
+        } else if ($type == AssociationInterface::HAS_MANY) {
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasMany($options);
+
+        } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
+            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
+
+        } else {
+            throw new Exception('Attempted to initialise unknown association type');
+        }
+
+        return $association;
     }
 
     public function buildQuery()

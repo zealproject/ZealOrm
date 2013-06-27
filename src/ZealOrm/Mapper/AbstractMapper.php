@@ -11,9 +11,8 @@ namespace ZealOrm\Mapper;
 
 use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Model\Hydrator;
-use ZealOrm\Model\Association\AssociationInterface;
 
-abstract class AbstractMapper
+abstract class AbstractMapper implements MapperInterface
 {
     protected $adapter;
 
@@ -55,6 +54,21 @@ abstract class AbstractMapper
         $this->adapter = $adapter;
 
         return $this;
+    }
+
+    /**
+     * Returns the name of the adapter this mapper uses. The name is passed
+     * to the service manager to get an instance of the adapter, supplied to
+     * the mapper on instantiation.
+     *
+     * By default this returns the zeal_default_adapter string, which aliases
+     * to the Zend DB adapter.
+     *
+     * @return string
+     */
+    public function getAdapterName()
+    {
+        return 'zeal_default_adapter';
     }
 
     public function getAdapter()
@@ -193,25 +207,7 @@ abstract class AbstractMapper
 
     public function initAssociation($type, $options = array())
     {
-        // FIXME delegate this to the adapter so that the DB association classes aren't hard-coded here
-
-        if ($type == AssociationInterface::BELONGS_TO) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\BelongsTo($options);
-
-        } else if ($type == AssociationInterface::HAS_ONE) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasOne($options);
-
-        } else if ($type == AssociationInterface::HAS_MANY) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasMany($options);
-
-        } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
-
-        } else {
-            throw new Exception('Attempted to initialise unknown association type');
-        }
-
-        return $association;
+        return $this->getAdapter()->buildAssociation($type, $options);
     }
 
     public function buildQueryForAssociation($association)

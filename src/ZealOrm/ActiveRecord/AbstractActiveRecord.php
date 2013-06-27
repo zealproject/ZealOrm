@@ -8,7 +8,7 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm;
+namespace ZealOrm\ActiveRecord;
 
 use ZealOrm\Model\AbstractModel;
 use ZealOrm\Orm;
@@ -24,17 +24,17 @@ abstract class AbstractActiveRecord extends AbstractModel
     protected $adapter;
 
     /**
+     * [$hydrator description]
+     * @var [type]
+     */
+    protected $hydrator;
+
+    /**
      * The model's fields
      *
      * @var array
      */
     protected $fields = array();
-
-    /**
-     * [$hydrator description]
-     * @var [type]
-     */
-    protected $hydrator;
 
 
     public function setAdapter($adapter)
@@ -49,12 +49,19 @@ abstract class AbstractActiveRecord extends AbstractModel
         if (!$this->adapter) {
             $this->adapter = Orm::getDefaultAdapter();
 
-            $this->adapter->setOptions(array(
-                'tableName' => 'tokens'
-            ));
+            $this->adapter->setOptions($this->getDefaultAdapterOptions());
         }
 
         return $this->adapter;
+    }
+
+    public static function getStaticAdapter()
+    {
+        $adapter = Orm::getDefaultAdapter();
+
+        $adapter->setOptions(static::getDefaultAdapterOptions());
+
+        return $adapter;
     }
 
     /**
@@ -82,7 +89,7 @@ abstract class AbstractActiveRecord extends AbstractModel
     /**
      * Setter for the hydrator
      *
-     * @param [type] $hydrator [description]
+     * @param ZealOrm\Model\Hydrator $hydrator
      */
     public function setHydrator($hydrator)
     {
@@ -94,7 +101,7 @@ abstract class AbstractActiveRecord extends AbstractModel
     /**
      * Returns the hydrator
      *
-     * @return ZealOrm\Model\Hydrator [description]
+     * @return ZealOrm\Model\Hydrator
      */
     public function getHydrator()
     {
@@ -104,39 +111,5 @@ abstract class AbstractActiveRecord extends AbstractModel
         }
 
         return $this->hydrator;
-    }
-
-    public static function find($id)
-    {
-
-    }
-
-    public static function create(array $data)
-    {
-        $object = new static();
-        $object->getHydrator()->hydrate($data, $object);
-
-        $data = $object->getHydrator()->extract($object);
-
-        if ($object->getAdapter()->create($data)) {
-            return $object;
-        }
-
-        return false;
-    }
-
-    public static function update()
-    {
-
-    }
-
-    public static function save()
-    {
-
-    }
-
-    public static function delete()
-    {
-
     }
 }

@@ -11,5 +11,9 @@ namespace ZealOrm\Adapter;
 
 interface AdapterInterface
 {
+    public function buildAssociation($type, $options);
 
+    public function setOptions(array $options);
+
+    public function getOption($key, $default = null);
 }

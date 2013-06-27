@@ -147,7 +147,7 @@ abstract class AbstractModel
                 throw new \Exception('No class name specified for association \''.htmlspecialchars($shortname).'\' in model \''.get_class($this).'\'');
 
             } else if (class_exists($options['className'])) {
-                $targetMapper = \ZealOrm\Orm::getMapper($options['className']);
+                $targetMapper = Orm::getMapper($options['className']);
 
             } else {
                 throw new \Exception('Invalid class name of \''.htmlspecialchars($options['className']).'\' specified for association \''.htmlspecialchars($shortname).'\' in model \''.get_class($this).'\'');

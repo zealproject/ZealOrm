@@ -45,7 +45,17 @@ class Module
             ),
 
             'abstract_factories' => array(
-                'ZealOrm\Services\MapperAbstractFactory'
+                'ZealOrm\Service\MapperAbstractFactory'
+            ),
+
+            'aliases' => array(
+                'zeal_default_adapter' => 'ZealOrm\Adapter\Zend\Db'
+            ),
+
+            'shared' => array(
+                // the DB adapter includes mapper-specific options, so we always
+                // want a new instance of this
+                'ZealOrm\Adapter\Zend\Db' => false,
             ),
         );
     }

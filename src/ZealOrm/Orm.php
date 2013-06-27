@@ -38,10 +38,17 @@ class Orm
         return self::getServiceLocator()->get($mapperClassName);
     }
 
+    /**
+     * Returns the default adapter
+     *
+     * This uses the service locator's zeal_default_adapter alias, which
+     * by default points at the Zend DB adapter
+     *
+     * @return ZealOrm\Adapter\AdapterInterface
+     */
     public static function getDefaultAdapter()
     {
-        // TODO make the default adapter configurable?
-        return self::getServiceLocator()->get('ZealOrm\Adapter\Zend\Db');
+        return self::getServiceLocator()->get('zeal_default_adapter');
     }
 
     public static function getMapperClassName($className)
