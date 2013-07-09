@@ -13,14 +13,12 @@ abstract class AbstractAssociation extends ModelAbstractAssociation
 
     public function getColumnValue($model, $column)
     {
-        if ($column == 'class') {
-            return get_class($model);
-        } else if ($column == 'classID') {
+        if ($column == 'classID') {
             $mapper = Zeal_Orm::getMapper($model);
             $primaryKey = $mapper->getAdapter()->getPrimaryKey();
             return $model->$primaryKey;
-        } else {
-            return $model->$column;
         }
+
+        return parent::getColumnValue($model, $column);
     }
 }

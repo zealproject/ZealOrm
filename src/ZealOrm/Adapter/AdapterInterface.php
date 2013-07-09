@@ -16,4 +16,6 @@ interface AdapterInterface
     public function setOptions(array $options);
 
     public function getOption($key, $default = null);
+
+    public function buildQuery();
 }

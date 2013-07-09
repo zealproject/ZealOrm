@@ -23,4 +23,14 @@ class BelongsTo extends AbstractAssociation
 
         return $this->getTargetMapper()->fetchObject($query);
     }
+
+    /**
+     * Returns the foreign key column name
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return $this->getOption('foreignKey');
+    }
 }

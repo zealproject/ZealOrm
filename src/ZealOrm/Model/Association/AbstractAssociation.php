@@ -138,4 +138,20 @@ abstract class AbstractAssociation implements AssociationInterface
     {
         return $this->targetClassName;
     }
+
+    /**
+     * Returns the value for the specified column
+     *
+     * @param  object $model
+     * @param  string $column
+     * @return mixed
+     */
+    public function getColumnValue($model, $column)
+    {
+        if ($column == 'class') {
+            return get_class($model);
+        }
+
+        return $model->$column;
+    }
 }
