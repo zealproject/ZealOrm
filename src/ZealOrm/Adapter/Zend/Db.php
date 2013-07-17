@@ -134,6 +134,10 @@ class Db extends AbstractAdapter
     {
         $this->getTableGateway()->insert($data);
 
+        if ($this->getOption('autoIncrement', true)) {
+            return $this->getTableGateway()->getAdapter()->getDriver()->getLastGeneratedValue();
+        }
+
         return true;
     }
 }

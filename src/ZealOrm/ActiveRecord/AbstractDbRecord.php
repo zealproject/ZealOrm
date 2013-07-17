@@ -11,17 +11,8 @@ class AbstractDbRecord extends AbstractActiveRecord
      *
      * @var string
      */
-    protected $tableName;
+    protected static $tableName;
 
-
-    public function getTableName()
-    {
-        if (!$this->tableName) {
-            $this->tableName = $this->reflectTableName(get_class($this));
-        }
-
-        return $this->tableName;
-    }
 
     public static function reflectTableName($className)
     {
@@ -34,8 +25,10 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public static function getDefaultAdapterOptions()
     {
+        $tableName = static::$tableName ? static::$tableName : static::reflectTableName(get_called_class());
+
         return array(
-            'tableName' => static::reflectTableName(get_called_class())
+            'tableName' => $tableName
         );
     }
 

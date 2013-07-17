@@ -37,6 +37,11 @@ abstract class AbstractActiveRecord extends AbstractModel
     protected $fields = array();
 
 
+    /**
+     * Setter for the adapter
+     *
+     * @param ZealOrm\Adapter\AdapterInterface $adapter
+     */
     public function setAdapter($adapter)
     {
         $this->adapter = $adapter;
@@ -44,17 +49,25 @@ abstract class AbstractActiveRecord extends AbstractModel
         return $this;
     }
 
+    /**
+     * Returns an instance of the adapter, creating it if required
+     *
+     * @return ZealOrm\Adapter\AdapterInterface
+     */
     public function getAdapter()
     {
         if (!$this->adapter) {
-            $this->adapter = Orm::getDefaultAdapter();
-
-            $this->adapter->setOptions($this->getDefaultAdapterOptions());
+            $this->adapter = static::getStaticAdapter();
         }
 
         return $this->adapter;
     }
 
+    /**
+     * Returns an instance of the adapter with the default options
+     *
+     * @return ZealOrm\Adapter\AdapterInterface
+     */
     public static function getStaticAdapter()
     {
         $adapter = Orm::getDefaultAdapter();
