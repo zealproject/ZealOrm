@@ -39,12 +39,43 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public static function first()
     {
+        $adapter = static::getStaticAdapter();
 
+        $query = $adapter->buildQuery();
+        $query->limit(1);
+
+        $data = $adapter->fetchObject($query);
+        if ($data) {
+            $object = new static();
+            $object->getHydrator()->hydrate($data, $object);
+
+            return $object;
+        }
+
+        return false;
     }
 
     public static function all()
     {
+        $adapter = static::getStaticAdapter();
 
+        $query = $adapter->buildQuery();
+
+        $data = $adapter->fetchAll($query);
+        if ($data) {
+            $results = array();
+
+            foreach ($data as $row) {
+                $object = new static();
+                $object->getHydrator()->hydrate($row, $object);
+
+                $results[] = $object;
+            }
+
+            return $results;
+        }
+
+        return false;
     }
 
     public static function where($params)
