@@ -13,6 +13,27 @@ class AbstractDbRecord extends AbstractActiveRecord
      */
     protected static $tableName;
 
+    /**
+     * Name of the primary key column, or an array of column names
+     * (for compound keys)
+     *
+     * @var string|array
+     */
+    protected $primaryKey;
+
+    protected static $db;
+
+    protected static $tableGateway;
+
+
+    public function getTableGateway()
+    {
+        if (!static::$tableGateway) {
+            static::$tableGateway = new TableGateway($this->getTableName(), static::$db);
+        }
+
+        return static::$tableGateway;
+    }
 
     public static function reflectTableName($className)
     {
@@ -30,6 +51,16 @@ class AbstractDbRecord extends AbstractActiveRecord
         return array(
             'tableName' => $tableName
         );
+    }
+
+    public function isNewRecord()
+    {
+
+    }
+
+    protected function buildWhereClause()
+    {
+
     }
 
     public static function find($id)
@@ -103,7 +134,7 @@ class AbstractDbRecord extends AbstractActiveRecord
 
         $data = $object->getHydrator()->extract($object);
 
-        if ($object->getAdapter()->create($data)) {
+        if ($this->getTableGateway()->insert($data)) {
             return $object;
         }
 
@@ -112,17 +143,22 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public function update()
     {
-        $data = $this->getHydrator()->extract($this);
+        $data = $this->getHydrator()->extract($object);
 
+        return $this->getTableGateway()->update($data, $this->buildWhereClause());
     }
 
     public function save()
     {
-
+        if ($this->isNewRecord()) {
+            return $this->create();
+        } else {
+            return $this->update();
+        }
     }
 
     public function delete()
     {
-
+        return $this->getTableGateway()->delete($this->buildWhereClause());
     }
 }
