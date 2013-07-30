@@ -165,7 +165,7 @@ class Db extends AbstractAdapter
 
     public function update($data)
     {
-
+        return $this->getTableGateway()->update($data, $this->buildWhereClause($data));
     }
 
     public function delete($data)

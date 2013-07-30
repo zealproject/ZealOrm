@@ -218,6 +218,15 @@ abstract class AbstractMapper implements MapperInterface
         return $this->getAdapter()->create($data);
     }
 
+    public function update($object, $fields = null)
+    {
+        $this->prepare($object);
+
+        $data = $this->objectToArray($object);
+
+        return $this->getAdapter()->update($data);
+    }
+
     public function delete($object)
     {
         $data = $this->objectToArray($object);
