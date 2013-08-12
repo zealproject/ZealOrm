@@ -131,6 +131,17 @@ abstract class AbstractMapper implements MapperInterface
     }
 
     /**
+     * Converts an object into an array
+     *
+     * @param  object $object
+     * @return array
+     */
+    public function objectToArray($object)
+    {
+        return $this->getHydrator()->extract($object);
+    }
+
+    /**
      * Converts the result of an adapter query into an object
      *
      * This function is called on any data returned by the mapper's adapter. In most
@@ -202,7 +213,25 @@ abstract class AbstractMapper implements MapperInterface
     {
         $this->prepare($object);
 
-        return $this->getAdapter()->create($object);
+        $data = $this->objectToArray($object);
+
+        return $this->getAdapter()->create($data);
+    }
+
+    public function update($object, $fields = null)
+    {
+        $this->prepare($object);
+
+        $data = $this->objectToArray($object);
+
+        return $this->getAdapter()->update($data);
+    }
+
+    public function delete($object)
+    {
+        $data = $this->objectToArray($object);
+
+        return $this->getAdapter()->delete($data);
     }
 
     public function initAssociation($type, $options = array())

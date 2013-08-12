@@ -18,4 +18,36 @@ interface AdapterInterface
     public function getOption($key, $default = null);
 
     public function buildQuery();
+
+    /**
+     * Creates an object
+     *
+     * @param mixed $object
+     * @return boolean
+     */
+    public function create($data);
+
+    /**
+     * Commits any changes to the object
+     *
+     * @param mixed $object
+     * @return boolean
+     */
+    public function update($data);
+
+    /**
+     * Creates an object if it is new, updates it otherwise
+     *
+     * @param mixed $object
+     * @return boolean
+     */
+    public function save($data);
+
+    /**
+     * Deletes an object
+     *
+     * @param mixed $object
+     * @return boolean
+     */
+    public function delete($data);
 }

@@ -130,6 +130,23 @@ class Db extends AbstractAdapter
         }
     }
 
+    protected function buildWhereClause($data)
+    {
+        $primaryKey = $this->options['primaryKey'];
+
+        if (empty($primaryKey)) {
+            throw new Exception('Unable to build a where clause without a primary key');
+        }
+
+        if (empty($data[$primaryKey])) {
+            throw new Exception('Unable to build where clause without a value for '.htmlspecialchars($primaryKey));
+        }
+
+        $where = $this->db->platform->quoteIdentifier($primaryKey) . ' = ' . $this->db->platform->quoteValue($data[$primaryKey]);
+
+        return $where;
+    }
+
     public function create($data)
     {
         $this->getTableGateway()->insert($data);
@@ -139,5 +156,20 @@ class Db extends AbstractAdapter
         }
 
         return true;
+    }
+
+    public function save($data)
+    {
+
+    }
+
+    public function update($data)
+    {
+        return $this->getTableGateway()->update($data, $this->buildWhereClause($data));
+    }
+
+    public function delete($data)
+    {
+        return $this->getTableGateway()->delete($this->buildWhereClause($data));
     }
 }

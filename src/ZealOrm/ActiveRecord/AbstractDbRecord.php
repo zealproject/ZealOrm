@@ -13,6 +13,27 @@ class AbstractDbRecord extends AbstractActiveRecord
      */
     protected static $tableName;
 
+    /**
+     * Name of the primary key column, or an array of column names
+     * (for compound keys)
+     *
+     * @var string|array
+     */
+    protected $primaryKey;
+
+    protected static $db;
+
+    protected static $tableGateway;
+
+
+    public function getTableGateway()
+    {
+        if (!static::$tableGateway) {
+            static::$tableGateway = new TableGateway($this->getTableName(), static::$db);
+        }
+
+        return static::$tableGateway;
+    }
 
     public static function reflectTableName($className)
     {
@@ -32,6 +53,16 @@ class AbstractDbRecord extends AbstractActiveRecord
         );
     }
 
+    public function isNewRecord()
+    {
+
+    }
+
+    protected function buildWhereClause()
+    {
+
+    }
+
     public static function find($id)
     {
 
@@ -39,12 +70,43 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public static function first()
     {
+        $adapter = static::getStaticAdapter();
 
+        $query = $adapter->buildQuery();
+        $query->limit(1);
+
+        $data = $adapter->fetchObject($query);
+        if ($data) {
+            $object = new static();
+            $object->getHydrator()->hydrate($data, $object);
+
+            return $object;
+        }
+
+        return false;
     }
 
     public static function all()
     {
+        $adapter = static::getStaticAdapter();
 
+        $query = $adapter->buildQuery();
+
+        $data = $adapter->fetchAll($query);
+        if ($data) {
+            $results = array();
+
+            foreach ($data as $row) {
+                $object = new static();
+                $object->getHydrator()->hydrate($row, $object);
+
+                $results[] = $object;
+            }
+
+            return $results;
+        }
+
+        return false;
     }
 
     public static function where($params)
@@ -75,7 +137,6 @@ class AbstractDbRecord extends AbstractActiveRecord
         $success = $object->getAdapter()->create($data);
         if ($object->getAdapter()->getOption('autoIncrement', true)) {
             // $success is actually the newly created ID, so put it in the object
-            // FIXME: this is a bit DB specific
             $object->$id = $id;
         }
 
@@ -88,17 +149,22 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public function update()
     {
-        $data = $this->getHydrator()->extract($this);
+        $data = $this->getHydrator()->extract($object);
 
+        return $this->getTableGateway()->update($data, $this->buildWhereClause());
     }
 
     public function save()
     {
-
+        if ($this->isNewRecord()) {
+            return $this->create();
+        } else {
+            return $this->update();
+        }
     }
 
     public function delete()
     {
-
+        return $this->getTableGateway()->delete($this->buildWhereClause());
     }
 }

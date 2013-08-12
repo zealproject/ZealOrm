@@ -12,4 +12,8 @@ namespace ZealOrm\Mapper;
 interface MapperInterface
 {
     public function getAdapterName();
+
+    public function arrayToObject(array $data, $guard = true);
+
+    public function objectToArray($object);
 }
