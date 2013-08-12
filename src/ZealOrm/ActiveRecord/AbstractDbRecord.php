@@ -72,7 +72,14 @@ class AbstractDbRecord extends AbstractActiveRecord
 
         $data = $object->getHydrator()->extract($object);
 
-        if ($object->getAdapter()->create($data)) {
+        $success = $object->getAdapter()->create($data);
+        if ($object->getAdapter()->getOption('autoIncrement', true)) {
+            // $success is actually the newly created ID, so put it in the object
+            // FIXME: this is a bit DB specific
+            $object->$id = $id;
+        }
+
+        if ($success) {
             return $object;
         }
 

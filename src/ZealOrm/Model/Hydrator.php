@@ -53,6 +53,10 @@ class Hydrator extends AbstractHydrator
                     }
                     break;
 
+                case 'serialized':
+                    $data[$field] = serialize($object->$field);
+                    break;
+
                 default:
                     $data[$field] = $object->$field;
                     break;
@@ -102,7 +106,7 @@ class Hydrator extends AbstractHydrator
                     break;
 
                 case 'serialized':
-                    if (!empty($value)) {
+                    if (!empty($value) && is_string($value)) {
                         $data[$key] = unserialize($value);
                     }
                     break;
