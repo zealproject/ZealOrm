@@ -11,8 +11,11 @@ namespace ZealOrm\Mapper;
 
 use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Model\Hydrator;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerAwareInterface;
 
-abstract class AbstractMapper implements MapperInterface
+abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface
 {
     protected $adapter;
 
@@ -21,6 +24,8 @@ abstract class AbstractMapper implements MapperInterface
     protected $adapterOptions = array();
 
     protected $fields = array();
+
+    protected $events;
 
     protected $hydrator;
 
@@ -79,6 +84,27 @@ abstract class AbstractMapper implements MapperInterface
     public function getAdapterOptions()
     {
         return $this->adapterOptions;
+    }
+
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            $this->getClassName(),
+            'mapper'
+        ));
+
+        $this->events = $events;
+
+        return $this;
+    }
+
+    public function getEventManager()
+    {
+        if (null === $this->events) {
+            $this->setEventManager(new EventManager());
+        }
+
+        return $this->events;
     }
 
     /**
@@ -204,6 +230,14 @@ abstract class AbstractMapper implements MapperInterface
         return false;
     }
 
+    public function paginate($query, $currentPage, $itemsPerPage = 30)
+    {
+        if ($query === null) {
+            $query = $this->buildQuery();
+        }
+
+    }
+
     public function prepare($object)
     {
 
@@ -215,7 +249,13 @@ abstract class AbstractMapper implements MapperInterface
 
         $data = $this->objectToArray($object);
 
-        return $this->getAdapter()->create($data);
+        $success = $this->getAdapter()->create($data);
+
+        if ($success) {
+            $this->getEventManager()->trigger('created', $object);
+        }
+
+        return $success;
     }
 
     public function update($object, $fields = null)
@@ -224,14 +264,26 @@ abstract class AbstractMapper implements MapperInterface
 
         $data = $this->objectToArray($object);
 
-        return $this->getAdapter()->update($data);
+        $success = $this->getAdapter()->update($data);
+
+        if ($success) {
+            $this->getEventManager()->trigger('updated', $object);
+        }
+
+        return $success;
     }
 
     public function delete($object)
     {
         $data = $this->objectToArray($object);
 
-        return $this->getAdapter()->delete($data);
+        $success = $this->getAdapter()->delete($data);
+
+        if ($success) {
+            $this->getEventManager()->trigger('deleted', $object);
+        }
+
+        return $success;
     }
 
     public function initAssociation($type, $options = array())

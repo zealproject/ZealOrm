@@ -16,4 +16,20 @@ interface MapperInterface
     public function arrayToObject(array $data, $guard = true);
 
     public function objectToArray($object);
+
+    public function find($id, $query = null);
+
+    public function fetchAll($query = null);
+
+    public function fetchObject($query);
+
+    public function paginate($query, $currentPage);
+
+    public function prepare($object);
+
+    public function create($object);
+
+    public function update($object, $fields = null);
+
+    public function delete($object);
 }
