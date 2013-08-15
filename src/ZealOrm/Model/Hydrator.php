@@ -57,6 +57,14 @@ class Hydrator extends AbstractHydrator
                     $data[$field] = serialize($object->$field);
                     break;
 
+                case 'ip':
+                    if ($object->$field) {
+                        $data[$field] = ip2long($object->$field);
+                    } else {
+                        $data[$field] = null;
+                    }
+                    break;
+
                 default:
                     $data[$field] = $object->$field;
                     break;
@@ -108,6 +116,12 @@ class Hydrator extends AbstractHydrator
                 case 'serialized':
                     if (!empty($value) && is_string($value)) {
                         $data[$key] = unserialize($value);
+                    }
+                    break;
+
+                case 'ip':
+                    if (!empty($value)) {
+                        $data[$key] = long2ip($value);
                     }
                     break;
 

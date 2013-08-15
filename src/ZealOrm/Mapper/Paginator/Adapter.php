@@ -3,6 +3,9 @@
 namespace ZealOrm\Mapper\Paginator;
 
 use Zend\Paginator\Adapter\AdapterInterface;
+use Zend\Db\Sql\Sql;
+use Zend\Db\Sql\Select;
+use Zend\Db\Sql\Expression;
 
 class Adapter implements AdapterInterface
 {
@@ -42,7 +45,7 @@ class Adapter implements AdapterInterface
      */
     public function count()
     {
-        if ($this->rowCount !== null) {
+        if ($this->rowCount === null) {
             $select = clone $this->query;
             $select->reset(Select::LIMIT);
             $select->reset(Select::OFFSET);
@@ -52,7 +55,8 @@ class Adapter implements AdapterInterface
             $countSelect->columns(array('c' => new Expression('COUNT(1)')));
             $countSelect->from(array('original_select' => $select));
 
-            $statement = $this->sql->prepareStatementForSqlObject($countSelect);
+            $sql = new Sql($this->mapper->getAdapter()->getDb());
+            $statement = $sql->prepareStatementForSqlObject($countSelect);
             $result    = $statement->execute();
             $row       = $result->current();
 

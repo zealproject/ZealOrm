@@ -14,6 +14,8 @@ use ZealOrm\Model\Hydrator;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
+use Zend\Paginator\Paginator;
+use ZealOrm\Mapper\Paginator\Adapter as PaginatorAdapter;
 
 abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface
 {
@@ -230,12 +232,25 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return false;
     }
 
+    /**
+     * Returns a paginated resultset
+     *
+     * @param  Query     $query
+     * @param  integer   $currentPage
+     * @param  integer   $itemsPerPage
+     * @return Paginator
+     */
     public function paginate($query, $currentPage, $itemsPerPage = 30)
     {
         if ($query === null) {
             $query = $this->buildQuery();
         }
 
+        $paginator = new Paginator(new PaginatorAdapter($this, $query));
+        $paginator->setCurrentPageNumber($currentPage);
+        $paginator->setItemCountPerPage($itemsPerPage);
+
+        return $paginator;
     }
 
     public function prepare($object)
