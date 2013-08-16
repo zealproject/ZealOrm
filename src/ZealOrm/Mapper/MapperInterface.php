@@ -17,6 +17,8 @@ interface MapperInterface
 
     public function objectToArray($object);
 
+    public function buildQuery($params = null);
+
     public function find($id, $query = null);
 
     public function fetchAll($query = null);

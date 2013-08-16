@@ -136,9 +136,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this->hydrator;
     }
 
-    public function buildQuery()
+    public function buildQuery($params = null)
     {
-        return $this->getAdapter()->buildQuery();
+        return $this->getAdapter()->buildQuery($params);
     }
 
     /**

@@ -76,14 +76,27 @@ class Db extends AbstractAdapter
         return $association;
     }
 
-    public function buildQuery()
+    public function buildQuery($params = null)
     {
         $sql = new Sql($this->db);
 
-        $select = $sql->select();
-        $select->from($this->getTableName());
+        if (!is_array($params)) {
+            $params = array();
+        }
 
-        return $select;
+        // default to a select object
+        if (!isset($params['type'])) {
+            $params['type'] = 'select';
+        }
+
+        switch ($params['type']) {
+            case 'select':
+                $query = $sql->select();
+                $query->from($this->getTableName());
+                break;
+        }
+
+        return $query;
     }
 
     public function find($id, $query = null)

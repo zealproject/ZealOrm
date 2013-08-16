@@ -17,7 +17,13 @@ interface AdapterInterface
 
     public function getOption($key, $default = null);
 
-    public function buildQuery();
+    /**
+     * Returns a query object for this adapter
+     *
+     * @param  array|null $params
+     * @return Query\QueryInterface
+     */
+    public function buildQuery($params = null);
 
     /**
      * Creates an object
