@@ -1,5 +1,5 @@
 {
-    "name": "zealproject/ZealOrm",
+    "name": "zealproject/zeal-orm",
     "description": "ORM layer for Zend Framework 2 applications",
     "license": "BSD-3-Clause",
     "autoload": {
