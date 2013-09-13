@@ -18,6 +18,14 @@ class Hydrator extends AbstractHydrator
     protected $fields;
 
 
+    /**
+     * Setter for field types array
+     *
+     * This should be an array of field types where the key is the
+     * name of the field, and the value is the field type
+     *
+     * @param array $fieldTypes
+     */
     public function setFields(array $fieldTypes)
     {
         $this->fieldTypes = $fieldTypes;
@@ -25,6 +33,11 @@ class Hydrator extends AbstractHydrator
         return $this;
     }
 
+    /**
+     * Getter for the field types array
+     *
+     * @return array
+     */
     public function getFields()
     {
         return $this->fieldTypes;
@@ -71,22 +84,6 @@ class Hydrator extends AbstractHydrator
             }
         }
 
-        /*if (!is_callable(array($object, 'getArrayCopy'))) {
-            throw new Exception\BadMethodCallException(sprintf(
-                '%s expects the provided object to implement getArrayCopy()', __METHOD__
-            ));
-        }
-
-        $self = $this;
-        $data = $object->getArrayCopy();
-        array_walk($data, function (&$value, $name) use ($self, &$data) {
-            if (!$self->getFilter()->filter($name)) {
-                unset($data[$name]);
-            } else {
-                $value = $self->extractValue($name, $value);
-            }
-        });*/
-
         return $data;
     }
 
@@ -106,10 +103,22 @@ class Hydrator extends AbstractHydrator
                     break;
 
                 case 'datetime':
-                    if ($value instanceof DateTime) {
-                        $data[$key] = $value;
-                    } else {
-                        $data[$key] = new DateTime($value);
+                    if (!empty($value)) {
+                        if ($value instanceof DateTime) {
+                            $data[$key] = $value;
+                        } else {
+                            $data[$key] = new DateTime($value);
+                        }
+                    }
+                    break;
+
+                case 'date':
+                    if (!empty($value)) {
+                        if ($value instanceof DateTime) {
+                            $data[$key] = $value;
+                        } else {
+                            $data[$key] = new DateTime($value);
+                        }
                     }
                     break;
 
