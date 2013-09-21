@@ -9,6 +9,8 @@
 
 namespace ZealOrm\Adapter;
 
+use ZealOrm\Adapter\Query\QueryInterface;
+
 interface AdapterInterface
 {
     public function buildAssociation($type, $options);
@@ -24,6 +26,31 @@ interface AdapterInterface
      * @return Query\QueryInterface
      */
     public function buildQuery($params = null);
+
+    /**
+     * Fetch multiple records
+     *
+     * @param  QueryInterface $query
+     * @return array|false
+     */
+    public function fetchAll(QueryInterface $query = null);
+
+    /**
+     * Fetch a single record
+     *
+     * @param  QueryInterface $query
+     * @return array|false
+     */
+    public function fetchRecord(QueryInterface $query = null);
+
+    /**
+     * Finds a single record based on its primary key
+     *
+     * @param  mixed $id
+     * @param  QueryInterface $query
+     * @return array|false
+     */
+    public function find($id, $query = null);
 
     /**
      * Creates an object

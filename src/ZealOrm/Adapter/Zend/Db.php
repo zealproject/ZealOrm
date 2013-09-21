@@ -110,7 +110,7 @@ class Db extends AbstractAdapter
         return $this->fetchObject($query);
     }
 
-    public function fetchAll($query)
+    public function fetchAll($query = null)
     {
         $sql = new Sql($this->db);
 

@@ -224,7 +224,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
     public function fetchObject($query)
     {
-        $data = $this->getAdapter()->fetchObject($query);
+        $data = $this->getAdapter()->fetchRecord($query);
         if ($data) {
             return $this->resultToObject($data, false);
         }
