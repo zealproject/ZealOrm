@@ -88,6 +88,22 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this->adapterOptions;
     }
 
+    /**
+     * Returns the adapter option with the supplied key, defaulting to $default
+     *
+     * @param  string $key
+     * @param  mixed $default
+     * @return mixed
+     */
+    public function getAdapterOption($key, $default = null)
+    {
+        if (array_key_exists($key, $this->adapterOptions)) {
+            return $this->adapterOptions[$key];
+        }
+
+        return $default;
+    }
+
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
