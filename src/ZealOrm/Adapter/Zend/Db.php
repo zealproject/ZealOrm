@@ -108,7 +108,7 @@ class Db extends AbstractAdapter
         $query->where(array($this->getPrimaryKey() => $id));
         //$this->getTableName().'.'.$this->getPrimaryKey().' = ?', $id);
 
-        return $this->fetchObject($query);
+        return $this->fetchRecord($query);
     }
 
     public function fetchAll(QueryInterface $query = null)
