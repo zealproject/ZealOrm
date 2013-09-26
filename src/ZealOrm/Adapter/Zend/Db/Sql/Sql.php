@@ -3,18 +3,9 @@
 namespace ZealOrm\Adapter\Zend\Db\Sql;
 
 use Zend\Db\Sql\Sql as ZendSql;
+use ZealOrm\Adapter\Query\QueryInterface;
 
-class Sql extends ZendSql
+class Sql extends ZendSql implements QueryInterface
 {
-    public function select($table = null)
-    {
-        if ($this->table !== null && $table !== null) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                'This Sql object is intended to work with only the table "%s" provided at construction time.',
-                $this->table
-            ));
-        }
 
-        return new Select(($table) ?: $this->table);
-    }
 }

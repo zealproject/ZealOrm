@@ -10,7 +10,7 @@
 namespace ZealOrm\Adapter\Zend;
 
 use Zend\Db\TableGateway\TableGateway;
-use Zend\Db\Sql\Sql;
+use ZealOrm\Adapter\Zend\Db\Sql\Sql;
 use ZealOrm\Adapter\AbstractAdapter;
 use ZealOrm\Model\Association\AssociationInterface;
 use ZealOrm\Adapter\Query\QueryInterface;
