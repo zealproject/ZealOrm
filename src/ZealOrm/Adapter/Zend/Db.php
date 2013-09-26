@@ -13,6 +13,7 @@ use Zend\Db\TableGateway\TableGateway;
 use Zend\Db\Sql\Sql;
 use ZealOrm\Adapter\AbstractAdapter;
 use ZealOrm\Model\Association\AssociationInterface;
+use ZealOrm\Adapter\Query\QueryInterface;
 
 class Db extends AbstractAdapter
 {
@@ -110,7 +111,7 @@ class Db extends AbstractAdapter
         return $this->fetchObject($query);
     }
 
-    public function fetchAll($query = null)
+    public function fetchAll(QueryInterface $query = null)
     {
         $sql = new Sql($this->db);
 
@@ -127,7 +128,7 @@ class Db extends AbstractAdapter
         return $results;
     }
 
-    public function fetchObject($query = null)
+    public function fetchRecord(QueryInterface $query = null)
     {
         $sql = new Sql($this->db);
 
