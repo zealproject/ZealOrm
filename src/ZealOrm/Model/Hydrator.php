@@ -95,7 +95,11 @@ class Hydrator extends AbstractHydrator
             $fieldType = isset($fieldTypes[$key]) ? $fieldTypes[$key] : 'string';
             switch ($fieldType) {
                 case 'integer':
-                    $data[$key] = (int)$value;
+                    if ($value === null || $value === '') {
+                        $data[$key] = null;
+                    } else {
+                        $data[$key] = (int)$value;
+                    }
                     break;
 
                 case 'boolean':
