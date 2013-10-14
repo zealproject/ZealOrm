@@ -95,6 +95,11 @@ class Db extends AbstractAdapter
                 $query = $sql->select();
                 $query->from($this->getTableName());
                 break;
+
+            case 'delete':
+                $query = $sql->delete();
+                $query->from($this->getTableName());
+                break;
         }
 
         return $query;
