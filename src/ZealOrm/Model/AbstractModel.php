@@ -87,7 +87,7 @@ abstract class AbstractModel
         } else if (property_exists($this, $var)) {
             if ($this->isAssociation($var)) {
 
-            } else if (array_key_exists($var, $this->associationPropertyListeners)) {
+            } else if ($this->associationPropertyListeners && array_key_exists($var, $this->associationPropertyListeners)) {
                 $mapToAssociation = $this->associationPropertyListeners[$var];
 
                 $association = $this->getAssociation($mapToAssociation);
