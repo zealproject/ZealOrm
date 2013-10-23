@@ -278,12 +278,19 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     {
         $this->prepare($object);
 
+        // fire the pre create event
+        $this->getEventManager()->trigger('create.pre', $object, array(
+            'mapper' => $this
+        ));
+
         $data = $this->objectToArray($object);
 
         $success = $this->getAdapter()->create($data);
-
         if ($success) {
-            $this->getEventManager()->trigger('created', $object);
+            // fire the post create event
+            $this->getEventManager()->trigger('create.post', $object, array(
+                'mapper' => $this
+            ));
         }
 
         return $success;
@@ -317,7 +324,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $success;
     }
 
-    public function initAssociation($type, $options = array())
+    public function buildAssociation($type, $options = array())
     {
         return $this->getAdapter()->buildAssociation($type, $options);
     }

@@ -10,6 +10,7 @@
 namespace ZealOrm\Adapter;
 
 use ZealOrm\Adapter\Query\QueryInterface;
+use ZealOrm\Model\Association\AssociationInterface;
 
 interface AdapterInterface
 {
@@ -83,4 +84,6 @@ interface AdapterInterface
      * @return boolean
      */
     public function delete($data);
+
+    public function saveAssociatedData($object, AssociationInterface $association);
 }

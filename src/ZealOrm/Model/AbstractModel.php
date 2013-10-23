@@ -24,6 +24,11 @@ abstract class AbstractModel
      */
     protected $associations;
 
+    /**
+     * @var null|array
+     */
+    protected $associationPropertyListeners;
+
 
     public function __construct($data = null)
     {
@@ -60,6 +65,7 @@ abstract class AbstractModel
             // exception?
         }
     }
+
     /**
      * Magic method for setting model data
      *
@@ -79,19 +85,31 @@ abstract class AbstractModel
             return $this->$setMethodName($value);
 
         } else if (property_exists($this, $var)) {
-            if (!$this->dirty && $this->$var != $value) {
-                $this->dirty = true;
-            }
+            if ($this->isAssociation($var)) {
 
-            $this->$var = $value;
+            } else if (array_key_exists($var, $this->associationPropertyListeners)) {
+                $mapToAssociation = $this->associationPropertyListeners[$var];
+
+                $association = $this->getAssociation($mapToAssociation);
+                $association->setListenerProperty($var, $value);
+                $association->setDirty(true);
+
+            } else {
+                // just a normal object property
+                if (!$this->dirty && $this->$var != $value) {
+                    $this->dirty = true;
+                }
+
+                $this->$var = $value;
+            }
         }
     }
 
     public function populate(array $data)
     {
-        // FIXME
+        // FIXME: somehow call the hydrator here?
         foreach ($data as $key => $value) {
-            $this->$key = $value;
+            $this->__set($key, $value);
         }
     }
 
@@ -109,6 +127,16 @@ abstract class AbstractModel
     public function getAssociation($shortname)
     {
         return $this->associations[$shortname];
+    }
+
+    /**
+     * Returns all associations for this model
+     *
+     * @return array
+     */
+    public function getAssociations()
+    {
+        return $this->associations;
     }
 
     /**
@@ -154,14 +182,12 @@ abstract class AbstractModel
             }
         }
 
-        $association = $targetMapper->initAssociation($type, $options);
+        $association = $targetMapper->buildAssociation($type, $options);
 
         // add some things the association might need
         $association->setShortname($shortname)
                     ->setSource($this)
                     ->setTargetClassName($options['className']);
-
-        //$association->init();
 
         // store the association in the model
         $this->associations[$shortname] = $association;
@@ -209,5 +235,27 @@ abstract class AbstractModel
     public function hasAndBelongsToMany($shortname, $options = array())
     {
         $this->initAssociation(AssociationInterface::HAS_AND_BELONGS_TO_MANY, $shortname, $options);
+    }
+
+    /**
+     * Returns an array of associations with unsaved data
+     *
+     * @return array
+     */
+    public function getAssociationsWithUnsavedData()
+    {
+        $associations = $this->getAssociations();
+        if (!$associations) {
+            return array();
+        }
+
+        $unsavedAssociations = array();
+        foreach ($associations as $shortname => $association) {
+            if ($association->isDirty()) {
+                $unsavedAssociations[$shortname] = $association;
+            }
+        }
+
+        return $unsavedAssociations;
     }
 }

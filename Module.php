@@ -12,12 +12,54 @@ namespace ZealOrm;
 use Zend\Mvc\MvcEvent;
 use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Orm;
+use Zend\EventManager\SharedEventManager;
 
 class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
         Orm::setServiceLocator($e->getApplication()->getServiceManager());
+
+        $events = $e->getApplication()->getEventManager()->getSharedManager();
+
+        // if an auto incrementing primary key is being used, ensure it is
+        // populated after creation when using the DB adapter
+        $events->attach('mapper', 'create.post', function ($e) {
+            $object = $e->getTarget();
+            $params = $e->getParams();
+
+            $mapper = $params['mapper'];
+            $adapter = $mapper->getAdapter();
+            if ($adapter instanceof Db) {
+                $primaryKey = $mapper->getAdapterOption('primaryKey');
+                if ($primaryKey && $mapper->getAdapterOption('autoIncrement', true)) {
+                    $id = $mapper->getAdapter()->getTableGateway()->getAdapter()->getDriver()->getLastGeneratedValue();
+                    if (is_scalar($id)) {
+                        $object->$primaryKey = $id;
+                    }
+                }
+            }
+
+        }, -999);
+
+        // save associated data
+        $events->attach('mapper', 'create.post', function ($e) {
+            $object = $e->getTarget();
+            $params = $e->getParams();
+
+            $associationsToSave = $object->getAssociationsWithUnsavedData();
+            if ($associationsToSave) {
+                foreach ($associationsToSave as $shortname => $association) {
+                    $mapper = $association->getTargetMapper();
+                    $adapter = $mapper->getAdapter();
+
+                    $adapter->saveAssociatedData($object, $association);
+                }
+            }
+
+            exit;
+
+        }, -900);
     }
 
     public function getAutoloaderConfig()

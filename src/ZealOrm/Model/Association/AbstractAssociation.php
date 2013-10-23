@@ -3,6 +3,7 @@
 namespace ZealOrm\Model\Association;
 
 use ZealOrm\Model\Association\AssociationInterface;
+use ZealOrm\Model\Association\Data\Container as DataContainer;
 
 abstract class AbstractAssociation implements AssociationInterface
 {
@@ -19,6 +20,11 @@ abstract class AbstractAssociation implements AssociationInterface
     protected $sourceMapper;
 
     protected $options;
+
+    /**
+     * @var boolean
+     */
+    protected $dirty = false;
 
 
     public function __construct(array $options = array())
@@ -153,5 +159,32 @@ abstract class AbstractAssociation implements AssociationInterface
         }
 
         return $model->$column;
+    }
+
+    public function setListenerProperty($var, $value)
+    {
+
+    }
+
+    /**
+     * Getter for the 'dirty' property
+     *
+     * @return boolean
+     */
+    public function isDirty()
+    {
+        return $this->dirty;
+    }
+
+    /**
+     * Setter for the 'dirty' property
+     *
+     * @param boolean $value
+     */
+    public function setDirty($value)
+    {
+        $this->dirty = $value;
+
+        return $this;
     }
 }
