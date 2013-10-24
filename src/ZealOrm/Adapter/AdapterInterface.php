@@ -85,5 +85,12 @@ interface AdapterInterface
      */
     public function delete($data);
 
+    /**
+     * Saves data from association $association, from the source object
+     *
+     * @param  object               $object
+     * @param  AssociationInterface $association
+     * @return boolean
+     */
     public function saveAssociatedData($object, AssociationInterface $association);
 }
