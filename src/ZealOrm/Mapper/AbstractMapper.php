@@ -269,11 +269,27 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $paginator;
     }
 
+    /**
+     * Prepare the object
+     *
+     * This function is called before any create/save/update operation
+     * and can be overridden in the mapper class as a simple way to
+     * make changes to the object before save.
+     *
+     * @param  object $object
+     * @return void
+     */
     public function prepare($object)
     {
 
     }
 
+    /**
+     * Create an object
+     *
+     * @param  object   $object
+     * @return boolean  returns true on success, false on failure
+     */
     public function create($object)
     {
         $this->prepare($object);
@@ -296,16 +312,26 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $success;
     }
 
+    /**
+     * Create an object
+     *
+     * @param  object   $object
+     * @return boolean  returns true on success, false on failure
+     */
     public function update($object, $fields = null)
     {
         $this->prepare($object);
+
+        // fire the pre update event
+        $this->getEventManager()->trigger('update.pre', $object);
 
         $data = $this->objectToArray($object);
 
         $success = $this->getAdapter()->update($data);
 
         if ($success) {
-            $this->getEventManager()->trigger('updated', $object);
+            // fire the post update event
+            $this->getEventManager()->trigger('update.post', $object);
         }
 
         return $success;
@@ -313,12 +339,16 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
     public function delete($object)
     {
+        // fire the pre delete event
+        $this->getEventManager()->trigger('delete.pre', $object);
+
         $data = $this->objectToArray($object);
 
         $success = $this->getAdapter()->delete($data);
 
         if ($success) {
-            $this->getEventManager()->trigger('deleted', $object);
+            // fire the post delete event
+            $this->getEventManager()->trigger('delete.post', $object);
         }
 
         return $success;

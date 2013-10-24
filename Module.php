@@ -40,7 +40,7 @@ class Module
                 }
             }
 
-        }, -999);
+        }, 999);
 
         // save associated data
         $events->attach('mapper', 'create.post', function ($e) {
@@ -57,9 +57,7 @@ class Module
                 }
             }
 
-            exit;
-
-        }, -900);
+        }, 900);
     }
 
     public function getAutoloaderConfig()
