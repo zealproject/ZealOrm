@@ -27,6 +27,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
     protected $fields = array();
 
+    /**
+     * @var EventManager
+     */
     protected $events;
 
     protected $hydrator;
@@ -104,6 +107,11 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $default;
     }
 
+    /**
+     * Setter for the event manager, also populates identifiers
+     *
+     * @param EventManagerInterface $events
+     */
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
@@ -116,6 +124,11 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this;
     }
 
+    /**
+     * Getter for event manager. Creates instance on demand
+     *
+     * @return EventManager
+     */
     public function getEventManager()
     {
         if (null === $this->events) {

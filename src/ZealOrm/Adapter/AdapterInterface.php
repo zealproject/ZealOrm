@@ -65,9 +65,10 @@ interface AdapterInterface
      * Commits any changes to the object
      *
      * @param mixed $object
+     * @param array|null $fields
      * @return boolean
      */
-    public function update($data);
+    public function update($data, array $fields = null);
 
     /**
      * Creates an object if it is new, updates it otherwise
