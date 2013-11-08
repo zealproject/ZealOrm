@@ -340,7 +340,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
         $data = $this->objectToArray($object);
 
-        $success = $this->getAdapter()->update($data);
+        $success = $this->getAdapter()->update($data, $fields);
 
         if ($success) {
             // fire the post update event
