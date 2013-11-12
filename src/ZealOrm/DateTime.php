@@ -21,7 +21,7 @@ class DateTime extends \DateTime
                 if ($time->__toString() == 'NOW()') {
                     $time = date('Y-m-d H:i:s');
                 } else {
-                    throw new Zeal_Exception('Invalid date parameter supplied to DateTime');
+                    throw new \Exception('Invalid date parameter supplied to DateTime');
                 }
             } else if (is_numeric($time) && $time > 0) {
                 // assume unix timestamp

@@ -11,6 +11,7 @@ namespace ZealOrm\Model;
 
 use ZealOrm\Orm;
 use ZealOrm\Model\Association\AssociationInterface;
+use ZealOrm\Mapper\MapperInterface;
 
 abstract class AbstractModel
 {
@@ -86,6 +87,7 @@ abstract class AbstractModel
 
         } else if (property_exists($this, $var)) {
             if ($this->isAssociation($var)) {
+                // TODO
 
             } else if ($this->associationPropertyListeners && array_key_exists($var, $this->associationPropertyListeners)) {
                 $mapToAssociation = $this->associationPropertyListeners[$var];
@@ -124,6 +126,12 @@ abstract class AbstractModel
         return isset($this->associations[$shortname]);
     }
 
+    /**
+     * Getter for association
+     *
+     * @param  string $shortname
+     * @return ZealOrm\Model\Association\AssociationInterface
+     */
     public function getAssociation($shortname)
     {
         return $this->associations[$shortname];
@@ -163,8 +171,8 @@ abstract class AbstractModel
 
         // get the target mapper for the association
         if (isset($options['mapper'])) {
-            if (!($options['mapper'] instanceof Zeal_MapperInterface)) {
-                throw new \Exception('Mapper specified for association \''.htmlspecialchars($shortname).'\' must implement Zeal_MapperInterface');
+            if (!($options['mapper'] instanceof MapperInterface)) {
+                throw new \Exception('Mapper specified for association \''.htmlspecialchars($shortname).'\' must implement ZealOrm\Mapper\MapperInterface');
             }
 
             $targetMapper = $options['mapper'];

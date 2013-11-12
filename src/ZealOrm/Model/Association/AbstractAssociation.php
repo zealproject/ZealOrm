@@ -121,7 +121,7 @@ abstract class AbstractAssociation implements AssociationInterface
      *
      * @param string $key
      * @param mixed $value
-     * @return Zeal_Model_AssociationAbstract
+     * @return AbstractAssociation
      */
     public function setOption($key, $value)
     {
@@ -130,6 +130,11 @@ abstract class AbstractAssociation implements AssociationInterface
         return $this;
     }
 
+    /**
+     * Returns the options array
+     *
+     * @return array
+     */
     public function getOptions()
     {
         return $this->options;
