@@ -19,7 +19,7 @@ interface AssociationInterface
 
     public function getShortname();
 
-    public function setSource($sourceModel);
+    //public function setSource($sourceModel);
 
     public function setTargetClassName($className);
 

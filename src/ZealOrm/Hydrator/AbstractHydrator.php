@@ -148,5 +148,7 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
         }
 
         $object->populate($data);
+
+        return $object;
     }
 }

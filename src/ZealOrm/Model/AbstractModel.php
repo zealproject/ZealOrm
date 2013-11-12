@@ -12,8 +12,13 @@ namespace ZealOrm\Model;
 use ZealOrm\Orm;
 use ZealOrm\Model\Association\AssociationInterface;
 use ZealOrm\Mapper\MapperInterface;
+use Zend\Stdlib\Hydrator\HydratorAwareInterface;
+use Zend\Stdlib\Hydrator\HydratorInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerAwareInterface;
 
-abstract class AbstractModel
+abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwareInterface
 {
     /**
      * @var boolean
@@ -29,6 +34,16 @@ abstract class AbstractModel
      * @var null|array
      */
     protected $associationPropertyListeners;
+
+    /**
+     * @var Hydrator
+     */
+    protected $hydrator;
+
+    /**
+     * @var EventManager
+     */
+    protected $events;
 
 
     public function __construct($data = null)
@@ -107,6 +122,60 @@ abstract class AbstractModel
         }
     }
 
+    /**
+     * Set hydrator
+     *
+     * @param  HydratorInterface $hydrator
+     * @return HydratorAwareInterface
+     */
+    public function setHydrator(HydratorInterface $hydrator)
+    {
+        $this->hydrator = $hydrator;
+
+        return $this;
+    }
+
+    /**
+     * Retrieve hydrator
+     *
+     * @return HydratorInterface
+     */
+    public function getHydrator()
+    {
+        return $this->hydrator;
+    }
+
+    /**
+     * Setter for the event manager
+     *
+     * @param EventManagerInterface $events
+     */
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            get_class($this)
+        ));
+
+        $this->events = $events;
+
+        return $this;
+    }
+
+    /**
+     * Getter for event manager. Creates instance on demand
+     *
+     * @return EventManager
+     */
+    public function getEventManager()
+    {
+        if (null === $this->events) {
+            $this->setEventManager(new EventManager());
+        }
+
+        return $this->events;
+    }
+
+
     public function populate(array $data)
     {
         // FIXME: somehow call the hydrator here?
@@ -144,31 +213,23 @@ abstract class AbstractModel
      */
     public function getAssociations()
     {
+        if ($this->associations === null) {
+            return array();
+        }
+
         return $this->associations;
     }
 
     /**
-     * Initialises an association
-     *
-     * Creates an instance of the appropriate association class based on the
-     * supplied type and stores this model.
+     * Builds an association object
      *
      * @param $type
      * @param $shortname
      * @param $options
      * @return void
      */
-    protected function initAssociation($type, $shortname, $options = array())
+    /*protected function buildAssociation($type, $shortname, $options = array())
     {
-        if (!$this->associations) {
-            $this->associations = array();
-        }
-
-        // make sure it doesn't already exist
-        if (array_key_exists($shortname, $this->associations)) {
-            throw new \Exception('Association \''.htmlspecialchars($shortname).'\' already exists');
-        }
-
         // get the target mapper for the association
         if (isset($options['mapper'])) {
             if (!($options['mapper'] instanceof MapperInterface)) {
@@ -197,8 +258,55 @@ abstract class AbstractModel
                     ->setSource($this)
                     ->setTargetClassName($options['className']);
 
+        return $association;
+    }*/
+
+    /**
+     * Initialises an association
+     *
+     * Creates an instance of the appropriate association class based on the
+     * supplied type and stores this model.
+     *
+     * @param $type
+     * @param $shortname
+     * @param $options
+     * @return void
+     */
+    /*protected function initAssociation($type, $shortname, $options = array())
+    {
+        if (!$this->associations) {
+            $this->associations = array();
+        }
+
+        // make sure it doesn't already exist
+        if (array_key_exists($shortname, $this->associations)) {
+            throw new \Exception('Association \''.htmlspecialchars($shortname).'\' already exists');
+        }
+
+        $association = $this->buildAssociation($type, $shortname, $options);
+
         // store the association in the model
         $this->associations[$shortname] = $association;
+    }*/
+
+    public function addAssociation($shortname, AssociationInterface $association)
+    {
+        $this->associations[$shortname] = $association;
+    }
+
+    /**
+     * [addAssociationPropertyListener description]
+     * @param [type] $var                  [description]
+     * @param [type] $associationShortname [description]
+     */
+    public function addAssociationPropertyListener($var, $associationShortname)
+    {
+        // TODO validate association here
+        // TODO ensure var isn't already set
+
+        $this->associationPropertyListeners[$var] = $associationShortname;
+
+        return $this;
     }
 
     /**

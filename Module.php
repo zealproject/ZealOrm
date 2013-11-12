@@ -22,6 +22,16 @@ class Module
 
         $events = $e->getApplication()->getEventManager()->getSharedManager();
 
+        // populate the source model into association objects after hydration
+        $events->attach('ZealOrm\Model\Hydrator', 'hydrate.post', function ($e) {
+            $model = $e->getTarget();
+
+            foreach ($model->getAssociations() as $association) {
+                $association->setSource($model);
+            }
+
+        }, 100);
+
         // if an auto incrementing primary key is being used, ensure it is
         // populated after creation when using the DB adapter
         $events->attach('mapper', 'create.post', function ($e) {
@@ -85,7 +95,8 @@ class Module
             ),
 
             'abstract_factories' => array(
-                'ZealOrm\Service\MapperAbstractFactory'
+                'ZealOrm\Service\AbstractMapperFactory',
+                'ZealOrm\Service\AbstractModelFactory',
             ),
 
             'aliases' => array(

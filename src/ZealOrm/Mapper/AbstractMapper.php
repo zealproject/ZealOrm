@@ -16,8 +16,10 @@ use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\Paginator\Paginator;
 use ZealOrm\Mapper\Paginator\Adapter as PaginatorAdapter;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
-abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface
+abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface, ServiceLocatorAwareInterface
 {
     protected $adapter;
 
@@ -33,6 +35,8 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     protected $events;
 
     protected $hydrator;
+
+    protected $serviceLocator;
 
 
     public function getClassName()
@@ -165,6 +169,28 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this->hydrator;
     }
 
+    /**
+     * Set service locator
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     */
+    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->serviceLocator = $serviceLocator;
+
+        return $this;
+    }
+
+    /**
+     * Get service locator
+     *
+     * @return ServiceLocatorInterface
+     */
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
+
     public function buildQuery($params = null)
     {
         return $this->getAdapter()->buildQuery($params);
@@ -179,8 +205,12 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
      */
     public function arrayToObject(array $data, $guard = true)
     {
-        $className = $this->getClassName();
-        $object = new $className();
+        if ($this->getServiceLocator()->has($this->getClassName())) {
+            $object = clone $this->getServiceLocator()->get($this->getClassName());
+        } else {
+            $className = $this->getClassName();
+            $object = new $className();
+        }
 
         $this->getHydrator()->hydrate((array)$data, $object);
 

@@ -3,9 +3,12 @@
 namespace ZealOrm\Model\Association;
 
 use ZealOrm\Model\Association\AssociationInterface;
-use ZealOrm\Model\Association\Data\Container as DataContainer;
+//use ZealOrm\Model\Association\Data\Container as DataContainer;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerAwareInterface;
 
-abstract class AbstractAssociation implements AssociationInterface
+abstract class AbstractAssociation implements AssociationInterface, EventManagerAwareInterface
 {
     protected $type;
 
@@ -15,7 +18,7 @@ abstract class AbstractAssociation implements AssociationInterface
 
     protected $targetClassName;
 
-    protected $source;
+    //protected $source;
 
     protected $sourceMapper;
 
@@ -26,10 +29,42 @@ abstract class AbstractAssociation implements AssociationInterface
      */
     protected $dirty = false;
 
+    protected $events;
+
 
     public function __construct(array $options = array())
     {
         $this->options = $options;
+    }
+
+    /**
+     * Setter for the event manager
+     *
+     * @param EventManagerInterface $events
+     */
+    public function setEventManager(EventManagerInterface $events)
+    {
+        $events->setIdentifiers(array(
+            get_class($this)
+        ));
+
+        $this->events = $events;
+
+        return $this;
+    }
+
+    /**
+     * Getter for event manager. Creates instance on demand
+     *
+     * @return EventManager
+     */
+    public function getEventManager()
+    {
+        if (null === $this->events) {
+            $this->setEventManager(new EventManager());
+        }
+
+        return $this->events;
     }
 
     public function setTargetMapper($mapper)
@@ -66,7 +101,7 @@ abstract class AbstractAssociation implements AssociationInterface
     public function getSourceMapper()
     {
         if (!$this->sourceMapper) {
-            $this->sourceMapper = \ZealOrm\Orm::getMapper(get_class($this->source));
+            $this->sourceMapper = \ZealOrm\Orm::getMapper(get_class($this->getSource()));
         }
 
         return $this->sourceMapper;

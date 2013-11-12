@@ -19,7 +19,7 @@ class HasMany extends AbstractAssociation
 
     public function loadData()
     {
-        $query = $this->buildQuery();
+        $query = $this->buildQuery($sourceModel);
 
         return $this->getTargetMapper()->fetchAll($query);
     }

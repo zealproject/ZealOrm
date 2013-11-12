@@ -12,7 +12,7 @@ namespace ZealOrm\Service;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class MapperAbstractFactory implements AbstractFactoryInterface
+class AbstractMapperFactory implements AbstractFactoryInterface
 {
     /**
      * [canCreateServiceWithName description]
