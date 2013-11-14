@@ -72,6 +72,12 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         } else if (property_exists($this, $var)) {
             if ($this->$var === null && $this->isAssociation($var)) {
                 $this->$var = $this->getAssociation($var)->loadData();
+            } else if ($this->isAssociationPropertyListener($var)) {
+                $mapToAssociation = $this->associationPropertyListeners[$var];
+
+                $association = $this->getAssociation($mapToAssociation);
+
+                return $association->getListenerProperty($var);
             }
 
             // return the value
@@ -104,7 +110,7 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
             if ($this->isAssociation($var)) {
                 // TODO
 
-            } else if ($this->associationPropertyListeners && array_key_exists($var, $this->associationPropertyListeners)) {
+            } else if ($this->isAssociationPropertyListener($var)) {
                 $mapToAssociation = $this->associationPropertyListeners[$var];
 
                 $association = $this->getAssociation($mapToAssociation);
@@ -194,6 +200,18 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     {
         return isset($this->associations[$shortname]);
     }
+
+    /**
+     * Checks whether the var name supplied is an association listener
+     *
+     * @param string $var
+     * @return boolean
+     */
+    public function isAssociationPropertyListener($var)
+    {
+        return isset($this->associationPropertyListeners[$var]);
+    }
+
 
     /**
      * Getter for association

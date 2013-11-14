@@ -53,7 +53,7 @@ class Module
         }, 999);
 
         // save associated data
-        $events->attach('mapper', 'create.post', function ($e) {
+        $events->attach('mapper', array('create.post', 'update.post'), function ($e) {
             $object = $e->getTarget();
             $params = $e->getParams();
 
@@ -63,7 +63,7 @@ class Module
                     $mapper = $association->getTargetMapper();
                     $adapter = $mapper->getAdapter();
 
-                    $adapter->saveAssociatedData($object, $association);
+                    $association->saveData($object, $adapter);
                 }
             }
 

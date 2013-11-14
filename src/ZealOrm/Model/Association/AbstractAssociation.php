@@ -206,6 +206,11 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
 
     }
 
+    public function getListenerProperty($var)
+    {
+
+    }
+
     /**
      * Getter for the 'dirty' property
      *

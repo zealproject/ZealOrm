@@ -24,6 +24,11 @@ class HasOne extends AbstractAssociation
         return $this->getTargetMapper()->fetchObject($query);
     }
 
+    public function saveData($object, $adapter)
+    {
+        // TODO
+    }
+
     /**
      * Returns the foreign key column name
      *

@@ -26,11 +26,11 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
      * This should be an array of field types where the key is the
      * name of the field, and the value is the field type
      *
-     * @param array $fieldTypes
+     * @param array $fields
      */
-    public function setFields(array $fieldTypes)
+    public function setFields(array $fields)
     {
-        $this->fieldTypes = $fieldTypes;
+        $this->fields = $fields;
 
         return $this;
     }
@@ -42,15 +42,21 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
      */
     public function getFields()
     {
-        return $this->fieldTypes;
+        return $this->fields;
     }
 
+    /**
+     * Extract values from an object
+     *
+     * @param  object $object
+     * @return array
+     */
     public function extract($object)
     {
-        $fieldTypes = $this->getFields();
+        $fields = $this->getFields();
 
         $data = array();
-        foreach ($fieldTypes as $field => $fieldType) {
+        foreach ($fields as $field => $fieldType) {
             switch ($fieldType) {
                 case 'datetime':
                     if ($object->$field) {

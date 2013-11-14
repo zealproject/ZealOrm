@@ -11,6 +11,8 @@ interface AssociationInterface
 
     public function loadData();
 
+    public function saveData($object, $adapter);
+
     public function buildQuery();
 
     public function getType();
@@ -18,6 +20,10 @@ interface AssociationInterface
     public function setShortname($shortname);
 
     public function getShortname();
+
+    public function setListenerProperty($var, $value);
+
+    public function getListenerProperty($var);
 
     //public function setSource($sourceModel);
 
