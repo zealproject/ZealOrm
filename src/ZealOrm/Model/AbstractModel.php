@@ -84,7 +84,7 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
             return $this->$var;
 
         } else {
-            // exception?
+            throw new \Exception("Attempt to access non-existent property '".htmlspecialchars($var)."' on ".get_class($this));
         }
     }
 

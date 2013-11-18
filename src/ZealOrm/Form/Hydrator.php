@@ -35,7 +35,7 @@ class Hydrator extends AbstractHydrator
         foreach ($this->getFormElements() as $name => $element) {
             if (array_key_exists($name, $modelData)) {
                 $data[$name] = $modelData[$name];
-            } else if ($object->isAssociation($name) || $name == 'notifiedUserIds') {
+            } else if ($object->isAssociation($name) || $object->isAssociationPropertyListener($name)) {
                 $data[$name] = $object->$name;
             }
         }
