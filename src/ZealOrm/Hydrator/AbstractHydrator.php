@@ -46,18 +46,24 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
     }
 
     /**
-     * Extract values from an object
+     * Extract values from an object based on the fields array
      *
      * @param  object $object
      * @return array
      */
-    public function extract($object)
+    public function extractFieldData($object)
     {
         $fields = $this->getFields();
 
         $data = array();
         foreach ($fields as $field => $fieldType) {
             switch ($fieldType) {
+                case 'integer':
+                    if ($object->$field !== null) {
+                        $data[$field] = (int)$object->$field;
+                    }
+                    break;
+
                 case 'datetime':
                     if ($object->$field) {
                         $data[$field] = $object->$field->format('Y-m-d H:i:s');
@@ -93,6 +99,27 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
         }
 
         return $data;
+    }
+
+    /**
+     * Extract values from an object
+     *
+     * @param  object $object
+     * @return array
+     */
+    public function extract($object)
+    {
+        if (method_exists($object, 'getArrayCopy')) {
+            $data = $object->getArrayCopy();
+
+            if (!is_array($data)) {
+                throw new \Exception(get_class($object).'::getArrayCopy() must return an array');
+            }
+
+            return $data;
+        }
+
+        return $this->extractFieldData();
     }
 
     public function hydrate(array $data, $object)
