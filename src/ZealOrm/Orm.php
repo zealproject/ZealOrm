@@ -17,9 +17,17 @@ class Orm
 
     protected static $mapperRegistry;
 
+    protected static $config;
+
     public static function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
+
+        // extract some of the config as well
+        $config = $serviceLocator->get('Config');
+        if (isset($config['zeal_orm'])) {
+            self::$config = $config['zeal_orm'];
+        }
     }
 
     public static function getServiceLocator()
@@ -27,12 +35,23 @@ class Orm
         return self::$serviceLocator;
     }
 
+    /**
+     * Returns the mapper for the supplied model class
+     *
+     * @param  string|object $objectOrClassName Class name or model instance
+     * @return ZealOrm\Mapper\MapperInterface
+     */
     public static function getMapper($objectOrClassName)
     {
         if (is_object($objectOrClassName)) {
             $objectOrClassName = get_class($objectOrClassName);
         } else if (empty($objectOrClassName)) {
             throw new \Exception('Unable to load mapper class for empty class name');
+        }
+
+        if (isset(self::$config['model_aliases']) && isset(self::$config['model_aliases'][$objectOrClassName])) {
+            // return the mapper for the target class
+            return self::getMapper(self::$config['model_aliases'][$objectOrClassName]);
         }
 
         $mapperClassName = self::getMapperClassName($objectOrClassName);

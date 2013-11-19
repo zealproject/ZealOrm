@@ -19,7 +19,12 @@ class BelongsTo extends AbstractAssociation
 
         $foreignKey = $this->getForeignKey();
 
-        $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $foreignKey)));
+        if ($this->getOption('polymorphic')) {
+            $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $this->getPolymorphicIdColumn())));
+
+        } else {
+            $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $foreignKey)));
+        }
 
         // $sql = new \Zend\Db\Sql\Sql($this->getTargetMapper()->getAdapter()->getDb());
         // echo $sql->getSqlStringForSqlObject($query);
@@ -37,6 +42,6 @@ class BelongsTo extends AbstractAssociation
 
     public function saveData($object, $adapter)
     {
-
+        // TODO
     }
 }

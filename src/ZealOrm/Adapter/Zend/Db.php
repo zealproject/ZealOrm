@@ -56,27 +56,6 @@ class Db extends AbstractAdapter
         return $this->tableGateway;
     }
 
-    public function buildAssociation($type, $options)
-    {
-        if ($type == AssociationInterface::BELONGS_TO) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\BelongsTo($options);
-
-        } else if ($type == AssociationInterface::HAS_ONE) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasOne($options);
-
-        } else if ($type == AssociationInterface::HAS_MANY) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasMany($options);
-
-        } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
-            $association = new \ZealOrm\Adapter\Zend\Db\Association\HasAndBelongsToMany($options);
-
-        } else {
-            throw new Exception('Attempted to initialise unknown association type');
-        }
-
-        return $association;
-    }
-
     public function buildQuery($params = null)
     {
         $sql = new Sql($this->db);
@@ -93,6 +72,7 @@ class Db extends AbstractAdapter
         switch ($params['type']) {
             case 'select':
                 $query = $sql->select();
+                $query->setPlatform($this->getDb()->getPlatform());
                 $query->from($this->getTableName());
                 break;
 

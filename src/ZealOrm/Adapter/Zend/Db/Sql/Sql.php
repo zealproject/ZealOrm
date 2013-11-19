@@ -16,6 +16,10 @@ class Sql extends ZendSql
             ));
         }
 
-        return new Select(($table) ?: $this->table);
+        $select = new Select(($table) ?: $this->table);
+
+        $select->setPlatform($this->getAdapter()->getPlatform());
+
+        return $select;
     }
 }

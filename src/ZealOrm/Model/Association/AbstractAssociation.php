@@ -7,6 +7,7 @@ use ZealOrm\Model\Association\AssociationInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
+use ZealOrm\Orm;
 
 abstract class AbstractAssociation implements AssociationInterface, EventManagerAwareInterface
 {
@@ -72,10 +73,20 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
         $this->targetMapper = $mapper;
     }
 
+    /**
+     * Returns the mapper class for the target of this association
+     *
+     * @return ZealOrm\Mapper\MapperInterface
+     */
     public function getTargetMapper()
     {
         if (!$this->targetMapper) {
-            $this->targetMapper = \ZealOrm\Orm::getMapper($this->getTargetClassName());
+            if ($this->getOption('polymorphic', false)) {
+                $this->targetMapper = Orm::getMapper($this->getPolymorphicType());
+
+            } else {
+                $this->targetMapper = Orm::getMapper($this->getTargetClassName());
+            }
         }
 
         return $this->targetMapper;
@@ -101,7 +112,7 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
     public function getSourceMapper()
     {
         if (!$this->sourceMapper) {
-            $this->sourceMapper = \ZealOrm\Orm::getMapper(get_class($this->getSource()));
+            $this->sourceMapper = Orm::getMapper(get_class($this->getSource()));
         }
 
         return $this->sourceMapper;
@@ -231,5 +242,19 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
         $this->dirty = $value;
 
         return $this;
+    }
+
+    public function getPolymorphicType()
+    {
+        $shortname = $this->getShortname();
+
+        return $this->getSource()->{$shortname.'_type'};
+    }
+
+    public function getPolymorphicIdColumn()
+    {
+        $shortname = $this->getShortname();
+
+        return $shortname.'_id';
     }
 }

@@ -26,7 +26,8 @@ class AbstractModelFactory implements AbstractFactoryInterface
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config = $serviceLocator->get('Config');
-        if (isset($config['models']) && isset($config['models'][$requestedName])) {
+
+        if (isset($config['zeal_orm']) && isset($config['zeal_orm']['models']) && isset($config['zeal_orm']['models'][$requestedName])) {
             return true;
         }
 
@@ -44,7 +45,7 @@ class AbstractModelFactory implements AbstractFactoryInterface
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $config = $serviceLocator->get('Config');
-        $modelConfig = $config['models'][$requestedName];
+        $modelConfig = $config['zeal_orm']['models'][$requestedName];
 
         if ($serviceLocator->has($requestedName, false)) {
             $model = $serviceLocator->get($requestedName);
@@ -53,22 +54,26 @@ class AbstractModelFactory implements AbstractFactoryInterface
             $model = new $requestedName();
         }
 
-        foreach ($modelConfig['associations'] as $associationShortname => $options) {
-            $associationClassName = $options['type'];
-            unset($options['type']);
+        if (isset($modelConfig['associations'])) {
+            foreach ($modelConfig['associations'] as $associationShortname => $options) {
+                $associationClassName = $options['type'];
+                unset($options['type']);
 
-            $association = new $associationClassName($options);
+                $association = new $associationClassName($options);
 
-            if ($association) {
-                $association->setShortname($associationShortname)
-                            ->setTargetClassName($options['class']);
+                if ($association) {
+                    $association->setShortname($associationShortname);
 
+                    if (array_key_exists('class', $options)) {
+                        $association->setTargetClassName($options['class']);
+                    }
 
-                $model->addAssociation($associationShortname, $association);
+                    $model->addAssociation($associationShortname, $association);
 
-                $association->getEventManager()->trigger('init', $association, array(
-                    'model' => $model
-                ));
+                    $association->getEventManager()->trigger('init', $association, array(
+                        'model' => $model
+                    ));
+                }
             }
         }
 
