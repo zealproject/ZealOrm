@@ -182,7 +182,7 @@ class Db extends AbstractAdapter
 
     }
 
-    public function update($data, $fields = null)
+    public function update($data, array $fields = null)
     {
         return $this->getTableGateway()->update($data, $this->buildWhereClause($data));
     }
