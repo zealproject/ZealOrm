@@ -54,7 +54,6 @@ class AbstractModelFactory implements AbstractFactoryInterface
         }
 
         foreach ($modelConfig['associations'] as $associationShortname => $options) {
-            //$association = $serviceLocator->get($associationConfig['type']);
             $associationClassName = $options['type'];
             unset($options['type']);
 
@@ -62,7 +61,6 @@ class AbstractModelFactory implements AbstractFactoryInterface
 
             if ($association) {
                 $association->setShortname($associationShortname)
-                            //->setSource($model)
                             ->setTargetClassName($options['class']);
 
 

@@ -34,4 +34,9 @@ class BelongsTo extends AbstractAssociation
 
         return $this->getTargetMapper()->fetchObject($query);
     }
+
+    public function saveData($object, $adapter)
+    {
+
+    }
 }

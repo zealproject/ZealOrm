@@ -31,6 +31,8 @@ class Orm
     {
         if (is_object($objectOrClassName)) {
             $objectOrClassName = get_class($objectOrClassName);
+        } else if (empty($objectOrClassName)) {
+            throw new \Exception('Unable to load mapper class for empty class name');
         }
 
         $mapperClassName = self::getMapperClassName($objectOrClassName);

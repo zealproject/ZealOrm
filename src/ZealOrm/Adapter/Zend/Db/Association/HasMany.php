@@ -42,4 +42,9 @@ class HasMany extends AbstractAssociation
 
         return $this->getTargetMapper()->fetchAll($query);
     }
+
+    public function saveData($object, $adapter)
+    {
+
+    }
 }

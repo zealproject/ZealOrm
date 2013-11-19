@@ -191,9 +191,4 @@ class Db extends AbstractAdapter
     {
         return $this->getTableGateway()->delete($this->buildWhereClause($data));
     }
-
-    public function saveAssociatedData($object, AssociationInterface $association)
-    {
-        // TODO
-    }
 }
