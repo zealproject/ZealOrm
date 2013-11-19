@@ -17,13 +17,17 @@ class HasOne extends AbstractAssociation
     {
         $query = $this->getTargetMapper()->buildQuery();
 
-        $foreignKey = $this->getForeignKey();
+        if (($as = $this->getOption('as')) !== null) {
+            // this is the other side of a polymorphic association
+            $query->where(array($as.'_type' => 'Collection'));
 
-        $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $foreignKey)));
+            $query->where(array($as.'_id' => $this->getColumnValue($this->getSource(), 'id')));
 
-        // $sql = new \Zend\Db\Sql\Sql($this->getTargetMapper()->getAdapter()->getDb());
-        // echo $sql->getSqlStringForSqlObject($query);
-        // exit;
+        } else {
+            $foreignKey = $this->getForeignKey();
+
+            $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $foreignKey)));
+        }
 
         return $query;
     }

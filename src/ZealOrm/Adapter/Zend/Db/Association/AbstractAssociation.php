@@ -3,6 +3,7 @@
 namespace ZealOrm\Adapter\Zend\Db\Association;
 
 use ZealOrm\Model\Association\AbstractAssociation as ModelAbstractAssociation;
+use ZealOrm\Orm;
 
 abstract class AbstractAssociation extends ModelAbstractAssociation
 {
@@ -14,7 +15,7 @@ abstract class AbstractAssociation extends ModelAbstractAssociation
     public function getColumnValue($model, $column)
     {
         if ($column == 'classID') {
-            $mapper = Zeal_Orm::getMapper($model);
+            $mapper = Orm::getMapper($model);
             $primaryKey = $mapper->getAdapter()->getPrimaryKey();
             return $model->$primaryKey;
         }
