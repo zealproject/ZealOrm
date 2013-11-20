@@ -119,7 +119,7 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
             return $data;
         }
 
-        return $this->extractFieldData();
+        return $this->extractFieldData($object);
     }
 
     public function hydrate(array $data, $object)
