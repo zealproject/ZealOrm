@@ -8,7 +8,10 @@ class HasMany extends AbstractAssociation
 {
     public function getForeignKey()
     {
-        // TODO tidy this up with a better default
+        if ($this->getOption('foreignKey')) {
+            return $this->getOption('foreignKey');
+        }
+
         $adapterOptions = $this->getSourceMapper()->getAdapterOptions();
         return $adapterOptions['primaryKey'];
     }
@@ -18,8 +21,11 @@ class HasMany extends AbstractAssociation
         $query = $this->getTargetMapper()->buildQuery();
 
         $foreignKey = $this->getForeignKey();
+        $primaryKey = $this->getOption('primaryKey', $foreignKey);
 
-        $query->where(array($foreignKey => $this->getColumnValue($this->getSource(), $foreignKey)));
+        $value = $this->getColumnValue($this->getSource(), $primaryKey);
+
+        $query->where(array($foreignKey => $value));
 
         if ($this->hasOption('where')) {
             $query->where($this->getOption('where'));
