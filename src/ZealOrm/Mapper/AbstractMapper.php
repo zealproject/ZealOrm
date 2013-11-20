@@ -244,17 +244,35 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this->arrayToObject($result, $guard);
     }
 
+    /**
+     * Find an object by its $id
+     *
+     * Returns the object on success, false on failure
+     *
+     * @param  mixed $id
+     * @param  Query|null $query Optional base query object
+     * @return object|false
+     */
     public function find($id, $query = null)
     {
-        // if ($this->isCached($id)) {
-        //     return $this->getCached($id);
-        // }
+        $eventParams = array(
+            'id' => $id
+        );
+
+        $results = $this->getEventManager()->trigger('find.pre', $this, $eventParams, function ($r) {
+            return ($r !== null);
+        });
+        if ($results->stopped()) {
+            return $results->last();
+        }
 
         $data = $this->getAdapter()->find($id, $query);
         if ($data) {
             $object = $this->resultToObject($data, false);
 
-            //$this->cache($object, $id);
+            $eventParams['object'] = $object;
+
+            $this->getEventManager()->trigger('find.post', $this, $eventParams);
 
             return $object;
         }
@@ -338,8 +356,8 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         $this->prepare($object);
 
         // fire the pre create event
-        $this->getEventManager()->trigger('create.pre', $object, array(
-            'mapper' => $this
+        $this->getEventManager()->trigger('create.pre', $this, array(
+            'object' => $object
         ));
 
         $data = $this->objectToArray($object);
@@ -347,8 +365,8 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         $success = $this->getAdapter()->create($data);
         if ($success) {
             // fire the post create event
-            $this->getEventManager()->trigger('create.post', $object, array(
-                'mapper' => $this
+            $this->getEventManager()->trigger('create.post', $this, array(
+                'object' => $object
             ));
         }
 
@@ -366,7 +384,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         $this->prepare($object);
 
         // fire the pre update event
-        $this->getEventManager()->trigger('update.pre', $object);
+        $this->getEventManager()->trigger('update.pre', $this, array(
+            'object' => $object
+        ));
 
         $data = $this->objectToArray($object);
 
@@ -374,7 +394,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
         if ($success) {
             // fire the post update event
-            $this->getEventManager()->trigger('update.post', $object);
+            $this->getEventManager()->trigger('update.post', $this, array(
+                'object' => $object
+            ));
         }
 
         return $success;
@@ -383,7 +405,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     public function delete($object)
     {
         // fire the pre delete event
-        $this->getEventManager()->trigger('delete.pre', $object);
+        $this->getEventManager()->trigger('delete.pre', $this, array(
+            'object' => $object
+        ));
 
         $data = $this->objectToArray($object);
 
@@ -391,7 +415,9 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
         if ($success) {
             // fire the post delete event
-            $this->getEventManager()->trigger('delete.post', $object);
+            $this->getEventManager()->trigger('delete.post', $this, array(
+                'object' => $object
+            ));
         }
 
         return $success;

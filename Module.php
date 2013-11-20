@@ -13,12 +13,15 @@ use Zend\Mvc\MvcEvent;
 use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Orm;
 use Zend\EventManager\SharedEventManager;
+use ZealOrm\Identity\Map as IdentityMap;
 
 class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
         Orm::setServiceLocator($e->getApplication()->getServiceManager());
+
+        $identityMap = $e->getApplication()->getServiceManager()->get('ZealOrm\Identity\Map');
 
         $events = $e->getApplication()->getEventManager()->getSharedManager();
 
@@ -35,8 +38,9 @@ class Module
         // if an auto incrementing primary key is being used, ensure it is
         // populated after creation when using the DB adapter
         $events->attach('mapper', 'create.post', function ($e) {
-            $object = $e->getTarget();
+            $mapper = $e->getTarget();
             $params = $e->getParams();
+            $object = $params['object'];
 
             $mapper = $params['mapper'];
             $adapter = $mapper->getAdapter();
@@ -54,20 +58,43 @@ class Module
 
         // save associated data
         $events->attach('mapper', array('create.post', 'update.post'), function ($e) {
-            $object = $e->getTarget();
+            $mapper = $e->getTarget();
             $params = $e->getParams();
+            $object = $params['object'];
 
             $associationsToSave = $object->getAssociationsWithUnsavedData();
             if ($associationsToSave) {
                 foreach ($associationsToSave as $shortname => $association) {
-                    $mapper = $association->getTargetMapper();
-                    $adapter = $mapper->getAdapter();
+                    $associationMapper = $association->getTargetMapper();
+                    $adapter = $associationMapper->getAdapter();
 
                     $association->saveData($object, $adapter);
                 }
             }
 
         }, 900);
+
+        // check the identity map for cached objects
+        $events->attach('mapper', 'find.pre', function ($e) use ($identityMap) {
+            $params = $e->getParams();
+            $mapper = $e->getTarget();
+            $id = $params['id'];
+
+            return $identityMap->get($mapper->getClassName(), $id);
+
+        }, 100);
+
+        // store objects loaded via. find in the identity map
+        $events->attach('mapper', 'find.post', function ($e) use ($identityMap) {
+            $params = $e->getParams();
+            $object = $params['object'];
+            $id = $params['id'];
+
+            if ($object && is_scalar($id)) {
+                $identityMap->store($object, $id);
+            }
+
+        }, -100);
     }
 
     public function getAutoloaderConfig()
@@ -85,12 +112,18 @@ class Module
     {
         return array(
             'factories' => array(
-                'ZealOrm\Adapter\Zend\Db' => function($sm) {
+                'ZealOrm\Adapter\Zend\Db' => function ($sm) {
                     $dbAdapter = $sm->get('Zend\Db\Adapter\Adapter');
 
                     $adapter = new Db($dbAdapter);
 
                     return $adapter;
+                },
+
+                'ZealOrm\Identity\Map' => function ($sm) {
+                    $map = new IdentityMap();
+
+                    return $map;
                 }
             ),
 
