@@ -58,5 +58,7 @@ class Hydrator extends AbstractHydrator
         $object = parent::hydrate($data, $object);
 
         $this->getEventManager()->trigger('hydrate.post', $object);
+
+        return $object;
     }
 }
