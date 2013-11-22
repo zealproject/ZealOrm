@@ -42,7 +42,6 @@ class Module
             $params = $e->getParams();
             $object = $params['object'];
 
-            $mapper = $params['mapper'];
             $adapter = $mapper->getAdapter();
             if ($adapter instanceof Db) {
                 $primaryKey = $mapper->getAdapterOption('primaryKey');
