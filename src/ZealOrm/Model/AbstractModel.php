@@ -255,74 +255,11 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     }
 
     /**
-     * Builds an association object
+     * Stores an association object in the model
      *
-     * @param $type
-     * @param $shortname
-     * @param $options
-     * @return void
+     * @param string               $shortname
+     * @param AssociationInterface $association
      */
-    /*protected function buildAssociation($type, $shortname, $options = array())
-    {
-        // get the target mapper for the association
-        if (isset($options['mapper'])) {
-            if (!($options['mapper'] instanceof MapperInterface)) {
-                throw new \Exception('Mapper specified for association \''.htmlspecialchars($shortname).'\' must implement ZealOrm\Mapper\MapperInterface');
-            }
-
-            $targetMapper = $options['mapper'];
-
-        } else {
-            if (empty($options['className'])) {
-                // TODO: inflection based on the name of the association
-                throw new \Exception('No class name specified for association \''.htmlspecialchars($shortname).'\' in model \''.get_class($this).'\'');
-
-            } else if (class_exists($options['className'])) {
-                $targetMapper = Orm::getMapper($options['className']);
-
-            } else {
-                throw new \Exception('Invalid class name of \''.htmlspecialchars($options['className']).'\' specified for association \''.htmlspecialchars($shortname).'\' in model \''.get_class($this).'\'');
-            }
-        }
-
-        $association = $targetMapper->buildAssociation($type, $options);
-
-        // add some things the association might need
-        $association->setShortname($shortname)
-                    ->setSource($this)
-                    ->setTargetClassName($options['className']);
-
-        return $association;
-    }*/
-
-    /**
-     * Initialises an association
-     *
-     * Creates an instance of the appropriate association class based on the
-     * supplied type and stores this model.
-     *
-     * @param $type
-     * @param $shortname
-     * @param $options
-     * @return void
-     */
-    /*protected function initAssociation($type, $shortname, $options = array())
-    {
-        if (!$this->associations) {
-            $this->associations = array();
-        }
-
-        // make sure it doesn't already exist
-        if (array_key_exists($shortname, $this->associations)) {
-            throw new \Exception('Association \''.htmlspecialchars($shortname).'\' already exists');
-        }
-
-        $association = $this->buildAssociation($type, $shortname, $options);
-
-        // store the association in the model
-        $this->associations[$shortname] = $association;
-    }*/
-
     public function addAssociation($shortname, AssociationInterface $association)
     {
         $this->associations[$shortname] = $association;
@@ -341,50 +278,6 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         $this->associationPropertyListeners[$var] = $associationShortname;
 
         return $this;
-    }
-
-    /**
-     * Create a 'belongs to' association
-     *
-     * @param $shortname
-     * @return void
-     */
-    public function belongsTo($shortname, $options = array())
-    {
-        $this->initAssociation(AssociationInterface::BELONGS_TO, $shortname, $options);
-    }
-
-    /**
-     * Create a 'has one' association
-     *
-     * @param $shortname
-     * @return void
-     */
-    public function hasOne($shortname, $options = array())
-    {
-        $this->initAssociation(AssociationInterface::HAS_ONE, $shortname, $options);
-    }
-
-    /**
-     * Create a 'has many' association
-     *
-     * @param $shortname
-     * @return void
-     */
-    public function hasMany($shortname, $options = array())
-    {
-        $this->initAssociation(AssociationInterface::HAS_MANY, $shortname, $options);
-    }
-
-    /**
-     * Create a 'has and belongs to many' association
-     *
-     * @param $shortname
-     * @return void
-     */
-    public function hasAndBelongsToMany($shortname, $options = array())
-    {
-        $this->initAssociation(AssociationInterface::HAS_AND_BELONGS_TO_MANY, $shortname, $options);
     }
 
     /**

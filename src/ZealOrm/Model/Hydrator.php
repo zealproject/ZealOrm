@@ -51,13 +51,16 @@ class Hydrator extends AbstractHydrator
         return $this->events;
     }
 
+    /**
+     * Hydrate a model
+     *
+     * @param  array  $data
+     * @param  object $object
+     * @return object
+     */
     public function hydrate(array $data, $object)
     {
-        $this->getEventManager()->trigger('hydrate.pre', $object);
-
         $object = parent::hydrate($data, $object);
-
-        $this->getEventManager()->trigger('hydrate.post', $object);
 
         return $object;
     }
