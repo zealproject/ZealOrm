@@ -19,7 +19,7 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
 
     protected $targetClassName;
 
-    //protected $source;
+    protected $source;
 
     protected $sourceMapper;
 
@@ -99,6 +99,21 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
         return $this;
     }
 
+    /**
+     * Returns true if the association has a source object
+     *
+     * @return boolean
+     */
+    public function hasSource()
+    {
+        return $this->source !== null;
+    }
+
+    /**
+     * Returns the source model for this association
+     *
+     * @return object
+     */
     public function getSource()
     {
         return $this->source;
@@ -112,7 +127,12 @@ abstract class AbstractAssociation implements AssociationInterface, EventManager
     public function getSourceMapper()
     {
         if (!$this->sourceMapper) {
-            $this->sourceMapper = Orm::getMapper(get_class($this->getSource()));
+            $source = $this->getSource();
+            if (!$source) {
+                throw new \Exception('Unable to load source mapper as no source exists');
+            }
+
+            $this->sourceMapper = Orm::getMapper(get_class($source));
         }
 
         return $this->sourceMapper;

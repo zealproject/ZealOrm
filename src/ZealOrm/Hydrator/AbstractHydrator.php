@@ -180,7 +180,9 @@ abstract class AbstractHydrator extends ZendAbstractHydrator
             }
         }
 
-        $object->populate($data);
+        foreach ($data as $var => $value) {
+            $object->$var = $value;
+        }
 
         return $object;
     }

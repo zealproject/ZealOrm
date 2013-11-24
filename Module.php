@@ -23,17 +23,9 @@ class Module
 
         $identityMap = $e->getApplication()->getServiceManager()->get('ZealOrm\Identity\Map');
 
-        $events = $e->getApplication()->getEventManager()->getSharedManager();
+        $eventManager = $e->getApplication()->getEventManager();
 
-        // populate the source model into association objects after hydration
-        $events->attach('ZealOrm\Model\Hydrator', 'hydrate.post', function ($e) {
-            $model = $e->getTarget();
-
-            foreach ($model->getAssociations() as $association) {
-                $association->setSource($model);
-            }
-
-        }, 100);
+        $events = $eventManager->getSharedManager();
 
         // if an auto incrementing primary key is being used, ensure it is
         // populated after creation when using the DB adapter

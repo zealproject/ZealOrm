@@ -49,8 +49,17 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     public function __construct($data = null)
     {
         $this->init();
+
+        if ($data) {
+            $this->populate($data);
+        }
     }
 
+    /**
+     * Can be overridden for custom functionality. Called by constructor.
+     *
+     * @return void
+     */
     public function init()
     {
 
@@ -181,13 +190,15 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         return $this->events;
     }
 
-
+    /**
+     * Hydrate some data into the object (shortcut for the hydrator)
+     *
+     * @param  array  $data
+     * @return void
+     */
     public function populate(array $data)
     {
-        // FIXME: somehow call the hydrator here?
-        foreach ($data as $key => $value) {
-            $this->__set($key, $value);
-        }
+        $this->getHydrator()->hydrate($data, $this);
     }
 
     /**
@@ -221,6 +232,11 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
      */
     public function getAssociation($shortname)
     {
+        // ensure the association has a source
+        if (!$this->associations[$shortname]->hasSource()) {
+            $this->associations[$shortname]->setSource($this);
+        }
+
         return $this->associations[$shortname];
     }
 

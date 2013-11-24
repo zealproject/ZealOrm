@@ -13,12 +13,21 @@ use ZealOrm\Mapper\Registry;
 
 class Orm
 {
+    /**
+     * @var Zend\ServiceManager\ServiceLocatorInterface
+     */
     protected static $serviceLocator;
 
-    protected static $mapperRegistry;
-
+    /**
+     * @var array
+     */
     protected static $config;
 
+    /**
+     * Setter for the service locator
+     *
+     * @param Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
+     */
     public static function setServiceLocator($serviceLocator)
     {
         self::$serviceLocator = $serviceLocator;
@@ -30,6 +39,11 @@ class Orm
         }
     }
 
+    /**
+     * Getter for the service locator
+     *
+     * @return Zend\ServiceManager\ServiceLocatorInterface
+     */
     public static function getServiceLocator()
     {
         return self::$serviceLocator;
@@ -72,6 +86,12 @@ class Orm
         return self::getServiceLocator()->get('zeal_default_adapter');
     }
 
+    /**
+     * Returns mapper class name for a given class
+     *
+     * @param  string $className
+     * @return string
+     */
     public static function getMapperClassName($className)
     {
         // TODO do this with a closure instead so the mapper class name convention can
