@@ -19,9 +19,11 @@ class Module
 {
     public function onBootstrap(MvcEvent $e)
     {
-        Orm::setServiceLocator($e->getApplication()->getServiceManager());
+        $serviceLocator = $e->getApplication()->getServiceManager();
 
-        $identityMap = $e->getApplication()->getServiceManager()->get('ZealOrm\Identity\Map');
+        Orm::setServiceLocator($serviceLocator);
+
+        $identityMap = $serviceLocator->get('ZealOrm\Identity\Map');
 
         $eventManager = $e->getApplication()->getEventManager();
 
