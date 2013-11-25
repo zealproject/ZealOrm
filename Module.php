@@ -14,6 +14,7 @@ use ZealOrm\Adapter\Zend\Db;
 use ZealOrm\Orm;
 use Zend\EventManager\SharedEventManager;
 use ZealOrm\Identity\Map as IdentityMap;
+use ZealOrm\Listener\IdentityMapListener;
 
 class Module
 {
@@ -26,6 +27,8 @@ class Module
         $identityMap = $serviceLocator->get('ZealOrm\Identity\Map');
 
         $eventManager = $e->getApplication()->getEventManager();
+
+        $eventManager->attach(new IdentityMapListener($identityMap));
 
         $events = $eventManager->getSharedManager();
 
@@ -66,28 +69,6 @@ class Module
             }
 
         }, 900);
-
-        // check the identity map for cached objects
-        $events->attach('mapper', 'find.pre', function ($e) use ($identityMap) {
-            $params = $e->getParams();
-            $mapper = $e->getTarget();
-            $id = $params['id'];
-
-            return $identityMap->get($mapper->getClassName(), $id);
-
-        }, 100);
-
-        // store objects loaded via. find in the identity map
-        $events->attach('mapper', 'find.post', function ($e) use ($identityMap) {
-            $params = $e->getParams();
-            $object = $params['object'];
-            $id = $params['id'];
-
-            if ($object && is_scalar($id)) {
-                $identityMap->store($object, $id);
-            }
-
-        }, -100);
     }
 
     public function getAutoloaderConfig()

@@ -17,8 +17,9 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
+use Serializable;
 
-abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwareInterface
+abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwareInterface, Serializable
 {
     /**
      * @var boolean
@@ -300,5 +301,26 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         }
 
         return $unsavedAssociations;
+    }
+
+    /**
+     * Serialize an object (for Serializeable)
+     *
+     * @return string
+     */
+    public function serialize()
+    {
+        return serialize($this->getHydrator()->extract($this));
+    }
+
+    /**
+     * Unserialize the model (for Serializeable)
+     *
+     * @param  array $data
+     * @return void
+     */
+    public function unserialize($data)
+    {
+        $this->getHydrator()->hydrate($data, $this);
     }
 }

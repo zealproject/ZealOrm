@@ -119,7 +119,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     public function setEventManager(EventManagerInterface $events)
     {
         $events->setIdentifiers(array(
-            $this->getClassName(),
+            get_class($this),
             'mapper'
         ));
 

@@ -52,6 +52,20 @@ class Map
     }
 
     /**
+     * Remove a cached object
+     *
+     * @param  string $class
+     * @param  mixed $key
+     * @return void
+     */
+    public function remove($class, $key)
+    {
+        if ($this->isCached($class,$key)) {
+            unset(static::$cachedObjects[$class][$key]);
+        }
+    }
+
+    /**
      * Returns whether or not an object with the supplied details is cached
      *
      * @param  string  $class The class name
