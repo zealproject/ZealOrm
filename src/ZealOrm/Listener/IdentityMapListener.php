@@ -16,6 +16,9 @@ use ZealOrm\Identity\Map as IdentityMap;
 
 class IdentityMapListener extends AbstractListenerAggregate
 {
+    /**
+     * @var IdentityMap
+     */
     protected $identityMap;
 
     public function __construct(IdentityMap $identityMap)
@@ -39,11 +42,16 @@ class IdentityMapListener extends AbstractListenerAggregate
      */
     public function checkIdentityMap(EventInterface $e)
     {
-        $params = $e->getParams();
         $mapper = $e->getTarget();
-        $id = $params['id'];
+        $params = $e->getParams();
+        $query = $params['query'];
 
-        return $this->identityMap->get($mapper->getClassName(), $id);
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
+        }
+
+        return $this->identityMap->get($mapper->getClassName(), $cacheKey);
     }
 
     /**
@@ -56,10 +64,15 @@ class IdentityMapListener extends AbstractListenerAggregate
     {
         $params = $e->getParams();
         $object = $params['object'];
-        $id = $params['id'];
+        $query = $params['query'];
 
-        if ($object && is_scalar($id)) {
-            $this->identityMap->store($object, $id);
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
+        }
+
+        if ($object) {
+            $this->identityMap->store($object, $cacheKey);
         }
     }
 
@@ -71,12 +84,16 @@ class IdentityMapListener extends AbstractListenerAggregate
      */
     public function removeFromCache(EventInterface $e)
     {
+        $mapper = $e->getTarget();
         $params = $e->getParams();
-        $id = $params['id'];
+        $query = $params['query'];
 
-        if (is_scalar($id)) {
-            $this->identityMap->remove($object, $id);
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
         }
+
+        $this->identityMap->remove($mapper->getClassName(), $cacheKey);
     }
 
 }

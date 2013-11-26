@@ -33,30 +33,9 @@ class CacheListener extends AbstractListenerAggregate
     {
         $sharedEvents = $events->getSharedManager();
 
-        $this->listeners[] = $sharedEvents->attach($this->attachTo, 'find.pre', array($this, 'checkCache'), 500);
-        $this->listeners[] = $sharedEvents->attach($this->attachTo, 'find.post', array($this, 'storeInCache'), -500);
+        $this->listeners[] = $sharedEvents->attach($this->attachTo, array('find.pre', 'fetchObject.pre'), array($this, 'checkCache'), 500);
+        $this->listeners[] = $sharedEvents->attach($this->attachTo, array('find.post', 'fetchObject.post'), array($this, 'storeInCache'), -500);
         $this->listeners[] = $sharedEvents->attach($this->attachTo, array('update.post', 'delete.post'), array($this, 'removeFromCache'), 500);
-    }
-
-    /**
-     * Returns a cache key unique to the supplied class name and id
-     *
-     * Returns the resulting key, or false if this object cannot be
-     * cached
-     *
-     * @param  string $className
-     * @param  mixed $id
-     * @param  array|null $params
-     * @return string|false
-     */
-    protected function buildCacheKey($className, $id, $params = null)
-    {
-        $cacheKey = $className.'_'.$id;
-        if ($params) {
-            // TODO
-        }
-
-        return $cacheKey;
     }
 
     /**
@@ -69,19 +48,20 @@ class CacheListener extends AbstractListenerAggregate
     {
         $params = $e->getParams();
         $mapper = $e->getTarget();
-        $id = $params['id'];
+        $query = $params['query'];
 
-        $success = null;
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
+        }
 
-        $cacheKey = $this->buildCacheKey($mapper->getClassName(), $id);
-        if ($cacheKey) {
-            $data = $this->cache->getItem($this->buildCacheKey($mapper->getClassName(), $id), $success);
-            if ($data) {
-                $object = $this->serviceLocator->get($mapper->getClassName());
-                $object = $object->getHydrator()->hydrate($data, $object);
-                if ($object) {
-                    return $object;
-                }
+        // load object from cache
+        $data = $this->cache->getItem($cacheKey);
+        if ($data) {
+            $object = $this->serviceLocator->get($mapper->getClassName());
+            $object = $object->getHydrator()->hydrate($data, $object);
+            if ($object) {
+                return $object;
             }
         }
 
@@ -99,31 +79,41 @@ class CacheListener extends AbstractListenerAggregate
         $mapper = $e->getTarget();
         $params = $e->getParams();
         $object = $params['object'];
-        $id = $params['id'];
+        $query = $params['query'];
 
-        if ($object && is_scalar($id)) {
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
+        }
+
+        if ($object) {
             $data = $object->getHydrator()->extract($object);
             if ($data) {
-                $cacheKey = $this->buildCacheKey($mapper->getClassName(), $id);
-                if ($cacheKey) {
-                    $this->cache->setItem($cacheKey, $data);
-                }
+                $this->cache->setItem($cacheKey, $data);
             }
         }
     }
 
+    /**
+     * Removes an object from the cache
+     *
+     * @param  EventInterface $e
+     * @return void
+     */
     public function removeFromCache(EventInterface $e)
     {
         $mapper = $e->getTarget();
         $params = $e->getParams();
         $object = $params['object'];
-        $id = $params['id'];
+        $query = $params['query'];
 
-        if ($object && is_scalar($id)) {
-            error_log('Clearing cache');
-            $cacheKey = $this->buildCacheKey($mapper->getClassName(), $id);
+        $cacheKey = $query->getCacheKey();
+        if (!$cacheKey) {
+            return;
+        }
 
-            $this->cache->setItem($cacheKey, $data);
+        if ($cacheKey) {
+            $this->cache->removeItem($cacheKey);
         }
     }
 }

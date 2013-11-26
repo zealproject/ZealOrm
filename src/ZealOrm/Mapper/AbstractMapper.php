@@ -145,7 +145,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     /**
      * Setter for the hydrator
      *
-     * @param [type] $hydrator [description]
+     * @param ZealOrm\Model\Hydrator $hydrator
      */
     public function setHydrator($hydrator)
     {
@@ -157,7 +157,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
     /**
      * Returns the hydrator
      *
-     * @return ZealOrm\Model\Hydrator [description]
+     * @return ZealOrm\Model\Hydrator
      */
     public function getHydrator()
     {
@@ -255,8 +255,14 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
      */
     public function find($id, $query = null)
     {
+        if (!$query) {
+            $query = $this->buildQuery();
+        }
+
+        $query->setId($id);
+
         $eventParams = array(
-            'id' => $id
+            'query' => $query
         );
 
         $results = $this->getEventManager()->trigger('find.pre', $this, $eventParams, function ($r) {
@@ -266,7 +272,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
             return $results->last();
         }
 
-        $data = $this->getAdapter()->find($id, $query);
+        $data = $this->getAdapter()->fetchRecord($query);
         if ($data) {
             $object = $this->resultToObject($data, false);
 
@@ -280,10 +286,27 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return false;
     }
 
+    /**
+     * Fetch multiple objects based on the supplied query
+     *
+     * @param  QueryInterface $query
+     * @return array
+     */
     public function fetchAll($query = null)
     {
         if (!$query) {
             $query = $this->buildQuery();
+        }
+
+        $eventParams = array(
+            'query' => $query
+        );
+
+        $results = $this->getEventManager()->trigger('fetchAll.pre', $this, $eventParams, function ($r) {
+            return ($r !== null);
+        });
+        if ($results->stopped()) {
+            return $results->last();
         }
 
         $data = $this->getAdapter()->fetchAll($query);
@@ -293,17 +316,44 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
                 $results[] = $this->resultToObject($result, false);
             }
 
+            $eventParams['results'] = $results;
+
+            $this->getEventManager()->trigger('fetchAll.post', $this, $eventParams);
+
             return $results;
         }
 
         return array();
     }
 
+    /**
+     * Fetch a single object based on the supplied query
+     *
+     * @param  QueryInterface $query
+     * @return object|false
+     */
     public function fetchObject($query)
     {
+        $eventParams = array(
+            'query' => $query
+        );
+
+        $results = $this->getEventManager()->trigger('fetchObject.pre', $this, $eventParams, function ($r) {
+            return ($r !== null);
+        });
+        if ($results->stopped()) {
+            return $results->last();
+        }
+
         $data = $this->getAdapter()->fetchRecord($query);
         if ($data) {
-            return $this->resultToObject($data, false);
+            $object = $this->resultToObject($data, false);
+
+            $eventParams['object'] = $object;
+
+            $this->getEventManager()->trigger('fetchObject.post', $this, $eventParams);
+
+            return $object;
         }
 
         return false;

@@ -35,6 +35,17 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
+     * Returns true if the adapter has an option with the specified key
+     *
+     * @param  string  $key
+     * @return boolean
+     */
+    public function hasOption($key)
+    {
+        return array_key_exists($key, $this->options);
+    }
+
+    /**
      * Gets a specific option
      *
      * @param  string $key    The option to return
@@ -43,31 +54,10 @@ abstract class AbstractAdapter implements AdapterInterface
      */
     public function getOption($key, $default = null)
     {
-        if (!array_key_exists($key, $this->options)) {
+        if (!$this->hasOption($key)) {
             return $default;
         }
 
         return $this->options[$key];
-    }
-
-    public function buildAssociation($type, $options)
-    {
-        if ($type == AssociationInterface::BELONGS_TO) {
-            $association = new Association\BelongsTo($options);
-
-        } else if ($type == AssociationInterface::HAS_ONE) {
-            $association = new Association\HasOne($options);
-
-        } else if ($type == AssociationInterface::HAS_MANY) {
-            $association = new Association\HasMany($options);
-
-        } else if ($type == AssociationInterface::HAS_AND_BELONGS_TO_MANY) {
-            $association = new Association\HasAndBelongsToMany($options);
-
-        } else {
-            throw new Exception('Attempted to initialise unknown association type');
-        }
-
-        return $association;
     }
 }
