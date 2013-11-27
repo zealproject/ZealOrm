@@ -105,7 +105,16 @@ class CacheListener extends AbstractListenerAggregate
         $mapper = $e->getTarget();
         $params = $e->getParams();
         $object = $params['object'];
-        $query = $params['query'];
+
+        // build a query object for this id
+        $primaryKey = $mapper->getAdapterOption('primaryKey');
+        if ($primaryKey && is_scalar($primaryKey)) {
+            $query = $mapper->getAdapter()->buildQuery();
+            $query->setId($object->$primaryKey);
+
+        } else {
+            return;
+        }
 
         $cacheKey = $query->getCacheKey();
         if (!$cacheKey) {
