@@ -14,10 +14,20 @@ use ZealOrm\Model\Association\AssociationInterface;
 
 interface AdapterInterface
 {
-    public function buildAssociation($type, $options);
-
+    /**
+     * Setter for the options array
+     *
+     * @param array $options
+     */
     public function setOptions(array $options);
 
+    /**
+     * Getter for a single option
+     *
+     * @param  string $key
+     * @param  mixed $default
+     * @return mixed
+     */
     public function getOption($key, $default = null);
 
     /**

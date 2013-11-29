@@ -24,6 +24,11 @@ class Select extends ZendSelect implements QueryInterface
         return $this->getSqlString($this->getPlatform());
     }
 
+    public function setId($id)
+    {
+        // TODO
+    }
+
     public function getCacheKey()
     {
         // TODO
