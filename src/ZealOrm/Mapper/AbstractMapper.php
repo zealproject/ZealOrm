@@ -251,15 +251,17 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
      *
      * @param  mixed $id
      * @param  Query|null $query Optional base query object
+     * @param  array|null $params Optional array of additional params to pass to the
+     *                            query object
      * @return object|false
      */
-    public function find($id, $query = null)
+    public function find($id, $query = null, $params = null)
     {
         if (!$query) {
             $query = $this->buildQuery();
         }
 
-        $query->setId($id);
+        $query->setId($id, $params);
 
         $eventParams = array(
             'query' => $query

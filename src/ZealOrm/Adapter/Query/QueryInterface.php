@@ -11,7 +11,7 @@ namespace ZealOrm\Adapter\Query;
 
 interface QueryInterface
 {
-    public function setId($id);
+    public function setId($id, $params = null);
 
     public function getCacheKey();
 }
