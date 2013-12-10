@@ -29,6 +29,11 @@ class HasOne extends AbstractAssociation
         // TODO
     }
 
+    public function loadPaginatedData($currentPage, $itemsPerPage = 30)
+    {
+
+    }
+
     /**
      * Returns the foreign key column name
      *

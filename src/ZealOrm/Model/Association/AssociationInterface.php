@@ -13,6 +13,8 @@ interface AssociationInterface
 
     public function saveData($object, $adapter);
 
+    public function loadPaginatedData($currentPage, $itemsPerPage = 30);
+
     public function buildQuery();
 
     public function getType();

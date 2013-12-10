@@ -19,7 +19,7 @@ class HasMany extends AbstractAssociation
 
     public function loadData()
     {
-        $query = $this->buildQuery($sourceModel);
+        $query = $this->buildQuery();
 
         return $this->getTargetMapper()->fetchAll($query);
     }
@@ -27,5 +27,10 @@ class HasMany extends AbstractAssociation
     public function saveData($object, $adapter)
     {
         // TODO
+    }
+
+    public function loadPaginatedData($currentPage, $itemsPerPage = 30)
+    {
+
     }
 }

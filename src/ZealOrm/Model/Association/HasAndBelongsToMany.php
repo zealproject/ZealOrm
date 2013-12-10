@@ -28,4 +28,9 @@ class HasAndBelongsToMany extends AbstractAssociation
     {
         // TODO
     }
+
+    public function loadPaginatedData($currentPage, $itemsPerPage = 30)
+    {
+
+    }
 }
