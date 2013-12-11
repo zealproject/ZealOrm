@@ -24,7 +24,7 @@ class Select extends ZendSelect implements QueryInterface
         return $this->getSqlString($this->getPlatform());
     }
 
-    public function setId($id)
+    public function setId($id, $params = null)
     {
         // TODO
     }

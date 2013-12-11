@@ -72,15 +72,15 @@ class Db extends AbstractAdapter
         switch ($params['type']) {
             case 'select':
                 $query = $sql->select();
-                $query->setPlatform($this->getDb()->getPlatform());
-                $query->from($this->getTableName());
                 break;
 
             case 'delete':
                 $query = $sql->delete();
-                $query->from($this->getTableName());
                 break;
         }
+
+        $query->from($this->getTableName());
+        $query->setPlatform($this->getDb()->getPlatform());
 
         return $query;
     }
