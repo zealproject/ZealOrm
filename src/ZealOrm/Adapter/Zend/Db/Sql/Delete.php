@@ -5,7 +5,7 @@ namespace ZealOrm\Adapter\Zend\Db\Sql;
 use Zend\Db\Sql\Delete as ZendDelete;
 use ZealOrm\Adapter\Query\QueryInterface;
 
-class Select extends ZendSelect implements QueryInterface
+class Delete extends ZendDelete implements QueryInterface
 {
     protected $platform;
 
