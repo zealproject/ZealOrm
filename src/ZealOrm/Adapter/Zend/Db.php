@@ -81,6 +81,7 @@ class Db extends AbstractAdapter
 
         $query->from($this->getTableName());
         $query->setPlatform($this->getDb()->getPlatform());
+        $query->setPrimaryKey($this->getPrimaryKey());
 
         return $query;
     }

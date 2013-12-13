@@ -9,6 +9,8 @@ class Delete extends ZendDelete implements QueryInterface
 {
     protected $platform;
 
+    protected $primaryKey;
+
     public function setPlatform($platform)
     {
         $this->platform = $platform;
@@ -17,6 +19,18 @@ class Delete extends ZendDelete implements QueryInterface
     public function getPlatform()
     {
         return $this->platform;
+    }
+
+    public function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
+
+        return $this;
+    }
+
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
     }
 
     public function __toString()

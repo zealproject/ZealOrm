@@ -9,6 +9,8 @@ class Select extends ZendSelect implements QueryInterface
 {
     protected $platform;
 
+    protected $primaryKey;
+
     public function setPlatform($platform)
     {
         $this->platform = $platform;
@@ -19,6 +21,18 @@ class Select extends ZendSelect implements QueryInterface
         return $this->platform;
     }
 
+    public function setPrimaryKey($primaryKey)
+    {
+        $this->primaryKey = $primaryKey;
+
+        return $this;
+    }
+
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
     public function __toString()
     {
         return $this->getSqlString($this->getPlatform());
@@ -26,7 +40,7 @@ class Select extends ZendSelect implements QueryInterface
 
     public function setId($id, $params = null)
     {
-        // TODO
+        $this->where(array($this->getPrimaryKey(), $id));
     }
 
     public function getCacheKey()
