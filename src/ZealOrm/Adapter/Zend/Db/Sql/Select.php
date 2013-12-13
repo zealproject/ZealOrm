@@ -9,6 +9,9 @@ class Select extends ZendSelect implements QueryInterface
 {
     protected $platform;
 
+    /**
+     * @var string
+     */
     protected $primaryKey;
 
     public function setPlatform($platform)
@@ -21,6 +24,11 @@ class Select extends ZendSelect implements QueryInterface
         return $this->platform;
     }
 
+    /**
+     * Setter for the primary key
+     *
+     * @param string $primaryKey
+     */
     public function setPrimaryKey($primaryKey)
     {
         $this->primaryKey = $primaryKey;
@@ -28,6 +36,11 @@ class Select extends ZendSelect implements QueryInterface
         return $this;
     }
 
+    /**
+     * Getter for the primary key
+     *
+     * @return string
+     */
     public function getPrimaryKey()
     {
         return $this->primaryKey;
