@@ -53,7 +53,7 @@ class Select extends ZendSelect implements QueryInterface
 
     public function setId($id, $params = null)
     {
-        $this->where(array($this->getPrimaryKey(), $id));
+        $this->where(array($this->getPrimaryKey() => $id));
     }
 
     public function getCacheKey()
