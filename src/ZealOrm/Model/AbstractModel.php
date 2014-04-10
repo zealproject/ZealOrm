@@ -19,6 +19,9 @@ use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Serializable;
 
+use ZealOrm\Model\Hydrator;
+
+
 abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwareInterface, Serializable
 {
     /**
@@ -158,6 +161,11 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
      */
     public function getHydrator()
     {
+        if (!$this->hydrator) {
+            $this->hydrator = new Hydrator();
+            //$hydrator->setFields($mapper->getFields()); FIXME
+        }
+
         return $this->hydrator;
     }
 

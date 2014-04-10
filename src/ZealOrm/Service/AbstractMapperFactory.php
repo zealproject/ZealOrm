@@ -24,7 +24,7 @@ class AbstractMapperFactory implements AbstractFactoryInterface
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if (substr($requestedName, -6) == 'Mapper' && class_exists($requestedName)) {
+        if ((substr($requestedName, -6) == 'Mapper' || strpos($requestedName, 'Mapper\\') !== false) && class_exists($requestedName)) {
             return true;
         }
 

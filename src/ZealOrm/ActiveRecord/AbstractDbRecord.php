@@ -3,6 +3,7 @@
 namespace ZealOrm\ActiveRecord;
 
 use ZealOrm\ActiveRecord\AbstractActiveRecord;
+use ZealOrm\Collection;
 
 class AbstractDbRecord extends AbstractActiveRecord
 {
@@ -19,7 +20,15 @@ class AbstractDbRecord extends AbstractActiveRecord
      *
      * @var string|array
      */
-    protected $primaryKey;
+    protected static $primaryKey;
+
+    /**
+     * [$defaultAdapterOptions description]
+     * @var array|null
+     */
+    protected static $defaultAdapterOptions = array(
+        'autoIncrement' => true
+    );
 
     protected static $db;
 
@@ -35,6 +44,33 @@ class AbstractDbRecord extends AbstractActiveRecord
         return static::$tableGateway;
     }
 
+    /**
+     * Setter for database table name
+     *
+     * @param string $tableName
+     */
+    public static function setTableName($tableName)
+    {
+        static::$tableName = $tableName;
+    }
+
+    /**
+     *  Getter for database table name
+     *
+     *  If not populated, the reflection is used to guess the table name
+     *  based on class name
+     *
+     * @return string
+     */
+    public static function getTableName()
+    {
+        if (!static::$tableName) {
+            static::$tableName = static::reflectTableName(get_called_class());
+        }
+
+        return static::$tableName;
+    }
+
     public static function reflectTableName($className)
     {
         $classParts = explode("\\", $className);
@@ -44,13 +80,44 @@ class AbstractDbRecord extends AbstractActiveRecord
         return $className;
     }
 
+    /**
+     * Setter for primary key
+     *
+     * @param string|array $primaryKey
+     */
+    public static function setPrimaryKey($primaryKey)
+    {
+        static::$primaryKey = $primaryKey;
+    }
+
+    /**
+     * Getter for primary key
+     *
+     * @return string|array
+     */
+    public static function getPrimaryKey()
+    {
+        if (static::$primaryKey === null) {
+            return 'id'; // TODO, some reflection here?
+        }
+
+        return static::$primaryKey;
+    }
+
     public static function getDefaultAdapterOptions()
     {
-        $tableName = static::$tableName ? static::$tableName : static::reflectTableName(get_called_class());
+        $classDefaults = static::$defaultAdapterOptions;
+        if (!is_array($classDefaults)) {
+            $classDefaults = array();
+        }
 
-        return array(
-            'tableName' => $tableName
-        );
+        $tableName = static::getTableName();
+        $primaryKey = static::getPrimaryKey();
+
+        return array_merge(array(
+            'tableName' => $tableName,
+            'primaryKey' => $primaryKey
+        ), $classDefaults);
     }
 
     public function isNewRecord()
@@ -65,7 +132,7 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public static function find($id)
     {
-
+        return static::where(array('id' => $id))->getFirstRow();
     }
 
     public static function first()
@@ -75,7 +142,7 @@ class AbstractDbRecord extends AbstractActiveRecord
         $query = $adapter->buildQuery();
         $query->limit(1);
 
-        $data = $adapter->fetchObject($query);
+        $data = $adapter->fetchRecord($query);
         if ($data) {
             $object = new static();
             $object->getHydrator()->hydrate($data, $object);
@@ -88,63 +155,37 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public static function all()
     {
-        $adapter = static::getStaticAdapter();
-
-        $query = $adapter->buildQuery();
-
-        $data = $adapter->fetchAll($query);
-        if ($data) {
-            $results = array();
-
-            foreach ($data as $row) {
-                $object = new static();
-                $object->getHydrator()->hydrate($row, $object);
-
-                $results[] = $object;
-            }
-
-            return $results;
-        }
-
-        return false;
+        return static::buildCollection();
     }
 
     public static function where($params)
     {
-        $adapter = static::getStaticAdapter();
+        $collection = static::buildCollection();
+        $collection->getQuery()->where($params);
 
-        $query = $adapter->buildQuery();
-        $query->where($params);
-
-        $data = $adapter->fetchObject($query);
-        if ($data) {
-            $object = new static();
-            $object->getHydrator()->hydrate($data, $object);
-
-            return $object;
-        }
-
-        return false;
+        return $collection;
     }
 
-    public static function create(array $data)
+    public static function order($orderSql)
     {
-        $object = new static();
-        $object->getHydrator()->hydrate($data, $object);
+        $collection = static::buildCollection();
+        $collection->getQuery()->order($orderSql);
 
-        $data = $object->getHydrator()->extract($object);
+        return $collection;
+    }
 
-        $success = $object->getAdapter()->create($data);
-        if ($object->getAdapter()->getOption('autoIncrement', true)) {
+    public function create()
+    {
+        $data = $this->getHydrator()->extract($this);
+
+        $success = $this->getAdapter()->create($data);
+        if ($this->getAdapter()->getOption('autoIncrement', true)) {
+            $id = 'id';
             // $success is actually the newly created ID, so put it in the object
-            $object->$id = $id;
+            $this->$id = $id;
         }
 
-        if ($success) {
-            return $object;
-        }
-
-        return false;
+        return $success ? true : false;
     }
 
     public function update()
@@ -166,5 +207,36 @@ class AbstractDbRecord extends AbstractActiveRecord
     public function delete()
     {
         return $this->getTableGateway()->delete($this->buildWhereClause());
+    }
+
+    /**
+     * Returns the model's fields
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        if (!$this->fields) {
+            $db = $this->getAdapter()->getDb();
+            $statement = $db->query("DESCRIBE ".$this->getTableName());
+            $result = $statement->execute();
+
+            $fields = array();
+            foreach ($result as $column) {
+                $type = substr($column['Type'], 0, strpos($column['Type'], '('));
+                if ($type == 'int') {
+                    $type = 'integer';
+                } else {
+                    // FIXME: need mapping for more types here
+                    $type = 'string';
+                }
+
+                $fields[$column['Field']] = $type;
+            }
+
+            $this->fields = $fields;
+        }
+
+        return $this->fields;
     }
 }

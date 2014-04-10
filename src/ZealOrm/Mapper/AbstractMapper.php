@@ -46,12 +46,17 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
             $mapperClass = get_class($this);
             if (substr($mapperClass, -6) == 'Mapper') {
                 $className = substr($mapperClass, 0, -6);
-                if (class_exists($className)) {
-                    $this->className = $className;
+            } else if (strpos($mapperClass, 'Mapper\\') !== false) {
+                $className = str_replace('Mapper', 'Entity', $mapperClass);
+            } else {
+                throw new \Exception('Unable to determine class name in mapper '.$mapperClass);
+            }
 
-                } else {
-                    throw new Exception('Unable to determine class name in apper '.$mapperClass);
-                }
+            if (class_exists($className)) {
+                $this->className = $className;
+
+            } else {
+                throw new \Exception('Unable to determine class name in mapper '.$mapperClass);
             }
         }
 

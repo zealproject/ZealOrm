@@ -35,6 +35,16 @@ abstract class AbstractAdapter implements AdapterInterface
     }
 
     /**
+     * Returns all adapter options
+     *
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
      * Returns true if the adapter has an option with the specified key
      *
      * @param  string  $key

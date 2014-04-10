@@ -2,7 +2,7 @@
 
 namespace ZealOrm\ActiveRecord;
 
-class ActiveRecordInterface
+interface ActiveRecordInterface
 {
     public static function find($id);
 
@@ -12,7 +12,9 @@ class ActiveRecordInterface
 
     public static function where($params);
 
-    public static function create(array $data);
+    public static function order($order);
+
+    public function create();
 
     public function update();
 

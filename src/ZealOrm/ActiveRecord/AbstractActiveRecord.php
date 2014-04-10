@@ -13,8 +13,11 @@ namespace ZealOrm\ActiveRecord;
 use ZealOrm\Model\AbstractModel;
 use ZealOrm\Orm;
 use ZealOrm\Model\Hydrator;
+use Zend\Stdlib\Hydrator\HydratorInterface;
+use ZealOrm\ActiveRecord\ActiveRecordInterface;
+use ZealOrm\Collection;
 
-abstract class AbstractActiveRecord extends AbstractModel
+abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecordInterface
 {
     /**
      * The adapter used by this ActiveRecord object
@@ -22,6 +25,12 @@ abstract class AbstractActiveRecord extends AbstractModel
      * @var ZealOrm\Adapter\AdapterInterface
      */
     protected $adapter;
+
+    /**
+     * [$defaultAdapterOptions description]
+     * @var array|null
+     */
+    protected static $defaultAdapterOptions;
 
     /**
      * [$hydrator description]
@@ -104,7 +113,7 @@ abstract class AbstractActiveRecord extends AbstractModel
      *
      * @param ZealOrm\Model\Hydrator $hydrator
      */
-    public function setHydrator($hydrator)
+    public function setHydrator(HydratorInterface $hydrator)
     {
         $this->hydrator = $hydrator;
 
@@ -124,5 +133,21 @@ abstract class AbstractActiveRecord extends AbstractModel
         }
 
         return $this->hydrator;
+    }
+
+    /**
+     * Returns a collection object with the adapter and query object populated
+     *
+     * @return Collection
+     */
+    protected static function buildCollection()
+    {
+        $adapter = static::getStaticAdapter();
+
+        $query = $adapter->buildQuery();
+
+        $collection = new Collection(static::getStaticAdapter(), $query, static::class);
+
+        return $collection;
     }
 }
