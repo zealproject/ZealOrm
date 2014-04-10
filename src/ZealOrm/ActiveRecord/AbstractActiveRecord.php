@@ -146,7 +146,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
 
         $query = $adapter->buildQuery();
 
-        $collection = new Collection(static::getStaticAdapter(), $query, static::class);
+        $collection = new Collection(static::getStaticAdapter(), $query, get_called_class());
 
         return $collection;
     }
