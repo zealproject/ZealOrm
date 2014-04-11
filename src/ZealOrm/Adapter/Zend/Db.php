@@ -165,7 +165,11 @@ class Db extends AbstractAdapter
 
     public function update($data, array $fields = null)
     {
-        return $this->getTableGateway()->update($data, $this->buildWhereClause($data));
+        $result = $this->getTableGateway()->update($data, $this->buildWhereClause($data));
+
+        // Table gateway's update() returns the number of affected rows, which could be 0
+        // even if the update worked
+        return is_int($result) && $result >= 0;
     }
 
     public function delete($data)
