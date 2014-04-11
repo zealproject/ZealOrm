@@ -43,7 +43,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
      *
      * @var array
      */
-    protected $fields = array();
+    protected static $fields = array();
 
 
     /**

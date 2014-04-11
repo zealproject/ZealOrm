@@ -125,11 +125,6 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     }
 
-    protected function buildWhereClause()
-    {
-
-    }
-
     public static function find($id)
     {
         return static::where(array('id' => $id))->getFirstRow();
@@ -190,9 +185,9 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public function update()
     {
-        $data = $this->getHydrator()->extract($object);
+        $data = $this->getHydrator()->extract($this);
 
-        return $this->getTableGateway()->update($data, $this->buildWhereClause());
+        return $this->getAdapter()->update($data);
     }
 
     public function save()
@@ -206,17 +201,21 @@ class AbstractDbRecord extends AbstractActiveRecord
 
     public function delete()
     {
-        return $this->getTableGateway()->delete($this->buildWhereClause());
+        $data = $this->getHydrator()->extract($this);
+
+        return $this->getAdapter()->delete($data);
     }
 
     /**
      * Returns the model's fields
      *
+     * TODO: cache this!
+     *
      * @return array
      */
     public function getFields()
     {
-        if (!$this->fields) {
+        if (!static::$fields) {
             $db = $this->getAdapter()->getDb();
             $statement = $db->query("DESCRIBE ".$this->getTableName());
             $result = $statement->execute();
@@ -234,9 +233,9 @@ class AbstractDbRecord extends AbstractActiveRecord
                 $fields[$column['Field']] = $type;
             }
 
-            $this->fields = $fields;
+            static::$fields = $fields;
         }
 
-        return $this->fields;
+        return static::$fields;
     }
 }

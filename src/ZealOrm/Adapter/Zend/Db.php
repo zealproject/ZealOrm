@@ -135,11 +135,11 @@ class Db extends AbstractAdapter
         $primaryKey = $this->options['primaryKey'];
 
         if (empty($primaryKey)) {
-            throw new Exception('Unable to build a where clause without a primary key');
+            throw new \Exception('Unable to build a where clause without a primary key');
         }
 
         if (empty($data[$primaryKey])) {
-            throw new Exception('Unable to build where clause without a value for '.htmlspecialchars($primaryKey));
+            throw new \Exception('Unable to build where clause without a value for '.htmlspecialchars($primaryKey));
         }
 
         $where = $this->db->platform->quoteIdentifier($primaryKey) . ' = ' . $this->db->platform->quoteValue($data[$primaryKey]);
