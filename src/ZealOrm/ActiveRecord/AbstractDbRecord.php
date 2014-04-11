@@ -207,31 +207,43 @@ class AbstractDbRecord extends AbstractActiveRecord
     }
 
     /**
-     * Returns the model's fields
+     * Calculate the entity's fields by inspecting the table structure
      *
      * TODO: cache this!
+     *
+     * @return array
+     */
+    protected static function getFieldsFromTableStructure()
+    {
+        $db = static::getStaticAdapter()->getDb();
+        $statement = $db->query("DESCRIBE ".static::getTableName());
+        $result = $statement->execute();
+
+        $fields = array();
+        foreach ($result as $column) {
+            $type = substr($column['Type'], 0, strpos($column['Type'], '('));
+            if ($type == 'int') {
+                $type = 'integer';
+            } else {
+                // FIXME: need mapping for more types here
+                $type = 'string';
+            }
+
+            $fields[$column['Field']] = $type;
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Returns the model's fields
      *
      * @return array
      */
     public function getFields()
     {
         if (!static::$fields) {
-            $db = $this->getAdapter()->getDb();
-            $statement = $db->query("DESCRIBE ".$this->getTableName());
-            $result = $statement->execute();
-
-            $fields = array();
-            foreach ($result as $column) {
-                $type = substr($column['Type'], 0, strpos($column['Type'], '('));
-                if ($type == 'int') {
-                    $type = 'integer';
-                } else {
-                    // FIXME: need mapping for more types here
-                    $type = 'string';
-                }
-
-                $fields[$column['Field']] = $type;
-            }
+            $fields = static::getFieldsFromTableStructure();
 
             static::$fields = $fields;
         }

@@ -93,7 +93,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
      */
     public function setFields($fields)
     {
-        $this->fields = $fields;
+        static::$fields = $fields;
 
         return $this;
     }
@@ -105,7 +105,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
      */
     public function getFields()
     {
-        return $this->fields;
+        return static::$fields;
     }
 
     /**
