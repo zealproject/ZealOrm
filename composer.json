@@ -17,6 +17,10 @@
         "role": "developer"
     }],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "zendframework/zend-loader": "~2.3",
+        "zendframework/zend-servicemanager": "~2.3",
+        "zendframework/zend-mvc": "~2.3",
+        "zendframework/zend-modulemanager": "~2.3"
     }
 }
