@@ -4,8 +4,9 @@ namespace ZealOrm;
 
 use IteratorAggregate;
 use ArrayIterator;
+use Countable;
 
-class Collection implements IteratorAggregate
+class Collection implements IteratorAggregate, Countable
 {
     protected $adapter;
 
@@ -88,5 +89,19 @@ class Collection implements IteratorAggregate
         $this->query->order($order);
 
         return $this;
+    }
+
+    /**
+     * Returns the number of items in the collection (part of Countable)
+     *
+     * @return integer
+     */
+    public function count()
+    {
+        if ($this->data === null) {
+            $this->loadData();
+        }
+
+        return count($this->data);
     }
 }
