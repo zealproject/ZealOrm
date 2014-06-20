@@ -43,6 +43,9 @@ class Collection implements IteratorAggregate
             }
 
             $this->data = $results;
+
+        } else {
+            $this->data = array();
         }
     }
 
