@@ -51,12 +51,19 @@ class Adapter implements AdapterInterface
             $select->reset(Select::OFFSET);
             $select->reset(Select::ORDER);
 
+            // this is how you do this with a sub select
+            /*
             $countSelect = new Select;
             $countSelect->columns(array('c' => new Expression('COUNT(1)')));
             $countSelect->from(array('original_select' => $select));
+            */
+
+            // ...but resetting the columns is much faster
+            $select->reset(Select::COLUMNS);
+            $select->columns(array('c' => new Expression('COUNT(1)')));
 
             $sql = new Sql($this->mapper->getAdapter()->getDb());
-            $statement = $sql->prepareStatementForSqlObject($countSelect);
+            $statement = $sql->prepareStatementForSqlObject($select);
             $result    = $statement->execute();
             $row       = $result->current();
 
