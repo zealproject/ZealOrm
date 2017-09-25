@@ -1,5 +1,5 @@
 <?php
-namespace ZealOrmTest;
+namespace Zeal\OrmTest;
 
 use Zend\Loader\AutoloaderFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;

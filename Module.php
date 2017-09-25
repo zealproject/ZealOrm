@@ -7,14 +7,14 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace ZealOrm;
+namespace Zeal\Orm;
 
 use Zend\Mvc\MvcEvent;
-use ZealOrm\Adapter\Zend\Db;
-use ZealOrm\Orm;
+use Zeal\Orm\Adapter\Zend\Db;
+use Zeal\Orm\Orm;
 use Zend\EventManager\SharedEventManager;
-use ZealOrm\Identity\Map as IdentityMap;
-use ZealOrm\Listener\IdentityMapListener;
+use Zeal\Orm\Identity\Map as IdentityMap;
+use Zeal\Orm\Listener\IdentityMapListener;
 
 class Module
 {
