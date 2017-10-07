@@ -14,40 +14,11 @@ use Zeal\Orm\Mapper\Registry;
 class Orm
 {
     /**
-     * @var Zend\ServiceManager\ServiceLocatorInterface
-     */
-    protected static $serviceLocator;
-
-    /**
      * @var array
      */
     protected static $config;
 
-    /**
-     * Setter for the service locator
-     *
-     * @param Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
-     */
-    public static function setServiceLocator($serviceLocator)
-    {
-        self::$serviceLocator = $serviceLocator;
-
-        // extract some of the config as well
-        $config = $serviceLocator->get('Config');
-        if (isset($config['zeal_orm'])) {
-            self::$config = $config['zeal_orm'];
-        }
-    }
-
-    /**
-     * Getter for the service locator
-     *
-     * @return Zend\ServiceManager\ServiceLocatorInterface
-     */
-    public static function getServiceLocator()
-    {
-        return self::$serviceLocator;
-    }
+    protected static $defaultAdapter;
 
     /**
      * Returns the mapper for the supplied model class
@@ -83,7 +54,13 @@ class Orm
      */
     public static function getDefaultAdapter()
     {
-        return self::getServiceLocator()->get('zeal_default_adapter');
+        // return self::getServiceLocator()->get('zeal_default_adapter');
+        return static::$defaultAdapter;
+    }
+
+    public static function setDefaultAdapter($adapter)
+    {
+        static::$defaultAdapter = $adapter;
     }
 
     /**
