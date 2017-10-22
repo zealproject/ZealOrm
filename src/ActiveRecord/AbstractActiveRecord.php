@@ -80,6 +80,9 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
     public static function getStaticAdapter()
     {
         $adapter = Orm::getDefaultAdapter();
+        if ($adapter === null) {
+            throw new \Exception('Default adapter is not set');
+        }
 
         $adapter->setOptions(static::getDefaultAdapterOptions());
 
