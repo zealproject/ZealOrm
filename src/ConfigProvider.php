@@ -1,7 +1,13 @@
 <?php
+/**
+ * Zeal ORM
+ *
+ * @link      http://github.com/tfountain
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
+ * @license   http://tfountain.co.uk/license New BSD License
+ */
 
 namespace Zeal\Orm;
-
 
 class ConfigProvider
 {
@@ -25,12 +31,18 @@ class ConfigProvider
     public function getDependencies()
     {
         return [
-            // 'invokables' => [
-            //     Orm::class => Orm::class,
-            // ],
-            'factories' => [
-                Orm::class => OrmFactory::class,
+            'invokables' => [
+                Model\Hydrator::class => Model\Hydrator::class,
             ],
+            'factories' => [
+                // Orm::class => OrmFactory::class,
+                Adapter\Zend\Db::class => Adapter\Zend\Db\DbAdapterFactory::class,
+                Mapper\Association\HasMany::class => Mapper\Association\AssociationFactory::class,
+                Middleware\OrmInitializerMiddleware::class => Middleware\OrmInitializerMiddlewareFactory::class,
+            ],
+            'shared' => [
+                Adapter\Zend\Db::class => false
+            ]
         ];
     }
 }

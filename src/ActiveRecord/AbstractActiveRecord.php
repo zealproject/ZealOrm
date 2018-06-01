@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Zeal ORM
  *
- * @link      http://github.com/zealproject
- * @copyright Copyright (c) 2010-2013 Tim Fountain (http://tfountain.co.uk/)
+ * @link      http://github.com/tfountain
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
@@ -12,17 +11,18 @@ namespace Zeal\Orm\ActiveRecord;
 
 use Zeal\Orm\Model\AbstractModel;
 use Zeal\Orm\Orm;
-use Zeal\Orm\Model\Hydrator;
+use Zeal\Orm\Hydrator\ModelHydrator;
 use Zend\Hydrator\HydratorInterface;
+use Zend\Hydrator\HydratorAwareInterface;
 use Zeal\Orm\ActiveRecord\ActiveRecordInterface;
-use Zeal\Orm\Collection;
+use Zeal\Orm\ActiveRecord\Collection;
 
-abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecordInterface
+abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecordInterface, HydratorAwareInterface
 {
     /**
      * The adapter used by this ActiveRecord object
      *
-     * @var ZealOrm\Adapter\AdapterInterface
+     * @var Zeal\Orm\Adapter\AdapterInterface
      */
     protected $adapter;
 
@@ -34,7 +34,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
 
     /**
      * [$hydrator description]
-     * @var [type]
+     * @var HydratorInterface
      */
     protected $hydrator;
 
@@ -43,13 +43,13 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
      *
      * @var array
      */
-    protected static $fields = array();
+    protected static $fields = [];
 
 
     /**
      * Setter for the adapter
      *
-     * @param ZealOrm\Adapter\AdapterInterface $adapter
+     * @param Zeal\Orm\Adapter\AdapterInterface $adapter
      */
     public function setAdapter($adapter)
     {
@@ -61,7 +61,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
     /**
      * Returns an instance of the adapter, creating it if required
      *
-     * @return ZealOrm\Adapter\AdapterInterface
+     * @return Zeal\Orm\Adapter\AdapterInterface
      */
     public function getAdapter()
     {
@@ -70,23 +70,6 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
         }
 
         return $this->adapter;
-    }
-
-    /**
-     * Returns an instance of the adapter with the default options
-     *
-     * @return ZealOrm\Adapter\AdapterInterface
-     */
-    public static function getStaticAdapter()
-    {
-        $adapter = Orm::getDefaultAdapter();
-        if ($adapter === null) {
-            throw new \Exception('Default adapter is not set');
-        }
-
-        $adapter->setOptions(static::getDefaultAdapterOptions());
-
-        return $adapter;
     }
 
     /**
@@ -114,7 +97,7 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
     /**
      * Setter for the hydrator
      *
-     * @param ZealOrm\Model\Hydrator $hydrator
+     * @param Zeal\Orm\Model\Hydrator $hydrator
      */
     public function setHydrator(HydratorInterface $hydrator)
     {
@@ -126,13 +109,12 @@ abstract class AbstractActiveRecord extends AbstractModel implements ActiveRecor
     /**
      * Returns the hydrator
      *
-     * @return ZealOrm\Model\Hydrator
+     * @return Zeal\Orm\Hydrator\Model
      */
     public function getHydrator()
     {
         if (!$this->hydrator) {
-            $this->hydrator = new Hydrator();
-            $this->hydrator->setFields($this->getFields());
+            $this->hydrator = new ModelHydrator($this->getFields());
         }
 
         return $this->hydrator;

@@ -3,23 +3,22 @@
  * Zeal ORM
  *
  * @link      http://github.com/tfountain
- * @copyright Copyright (c) 2010-2013 Tim Fountain (http://tfountain.co.uk/)
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
 namespace Zeal\Orm\Mapper;
 
 use Zeal\Orm\Adapter\Zend\Db;
-use Zeal\Orm\Model\Hydrator;
+use Zeal\Orm\Hydrator\ModelHydrator;
+use Zend\Hydrator\HydratorInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\Paginator\Paginator;
 use Zeal\Orm\Mapper\Paginator\Adapter as PaginatorAdapter;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
-abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface, ServiceLocatorAwareInterface
+abstract class AbstractMapper implements MapperInterface, EventManagerAwareInterface
 {
     protected $adapter;
 
@@ -147,53 +146,16 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return $this->events;
     }
 
-    /**
-     * Setter for the hydrator
-     *
-     * @param ZealOrm\Model\Hydrator $hydrator
-     */
-    public function setHydrator($hydrator)
+    public function setContainer($container)
     {
-        $this->hydrator = $hydrator;
+        $this->container = $container;
 
         return $this;
     }
 
-    /**
-     * Returns the hydrator
-     *
-     * @return ZealOrm\Model\Hydrator
-     */
-    public function getHydrator()
+    public function getContainer()
     {
-        if (!$this->hydrator) {
-            $this->hydrator = new Hydrator();
-            $this->hydrator->setFields($this->getFields());
-        }
-
-        return $this->hydrator;
-    }
-
-    /**
-     * Set service locator
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     */
-    public function setServiceLocator(ServiceLocatorInterface $serviceLocator)
-    {
-        $this->serviceLocator = $serviceLocator;
-
-        return $this;
-    }
-
-    /**
-     * Get service locator
-     *
-     * @return ServiceLocatorInterface
-     */
-    public function getServiceLocator()
-    {
-        return $this->serviceLocator;
+        return $this->container;
     }
 
     public function buildQuery($params = null)
@@ -210,14 +172,14 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
      */
     public function arrayToObject(array $data, $guard = true)
     {
-        if ($this->getServiceLocator()->has($this->getClassName())) {
-            $object = clone $this->getServiceLocator()->get($this->getClassName());
+        $className = $this->getClassName();
+        if ($this->getContainer()->has($className)) {
+            $object = clone $this->getContainer()->get($className);
         } else {
-            $className = $this->getClassName();
             $object = new $className();
         }
 
-        $this->getHydrator()->hydrate((array)$data, $object);
+        $object = $object->getHydrator()->hydrate($data, $object);
 
         return $object;
     }
@@ -230,7 +192,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
      */
     public function objectToArray($object)
     {
-        return $this->getHydrator()->extract($object);
+        return $object->getHydrator()->extract($object);
     }
 
     /**
@@ -293,21 +255,30 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
         return false;
     }
 
+    public function getCollection($query = null)
+    {
+        if (!$query) {
+            $query = $this->buildQuery();
+        }
+
+        return new Collection($this, $query);
+    }
+
     /**
      * Fetch multiple objects based on the supplied query
      *
      * @param  QueryInterface $query
      * @return array
      */
-    public function fetchAll($query = null)
+    public function fetchObjects($query = null)
     {
         if (!$query) {
             $query = $this->buildQuery();
         }
 
-        $eventParams = array(
+        $eventParams = [
             'query' => $query
-        );
+        ];
 
         $results = $this->getEventManager()->trigger('fetchAll.pre', $this, $eventParams, function ($r) {
             return ($r !== null);
@@ -318,7 +289,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
 
         $data = $this->getAdapter()->fetchAll($query);
         if ($data) {
-            $results = array();
+            $results = [];
             foreach ($data as $result) {
                 $results[] = $this->resultToObject($result, false);
             }
@@ -330,7 +301,7 @@ abstract class AbstractMapper implements MapperInterface, EventManagerAwareInter
             return $results;
         }
 
-        return array();
+        return [];
     }
 
     /**

@@ -3,7 +3,7 @@
  * Zeal ORM
  *
  * @link      http://github.com/zealproject
- * @copyright Copyright (c) 2010-2013 Tim Fountain (http://tfountain.co.uk/)
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
@@ -95,4 +95,12 @@ interface AdapterInterface
      * @return boolean
      */
     public function delete($data);
+
+    /**
+     * Returns the number of objects matching the supplied query
+     *
+     * @param  QueryInterface $query
+     * @return integer
+     */
+    public function count($query);
 }

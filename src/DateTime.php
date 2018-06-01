@@ -3,7 +3,7 @@
  * Zeal ORM
  *
  * @link      http://github.com/tfountain
- * @copyright Copyright (c) 2010-2013 Tim Fountain (http://tfountain.co.uk/)
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
@@ -11,7 +11,7 @@ namespace Zeal\Orm;
 
 class DateTime extends \DateTime
 {
-    static $defaultFormat = 'H:i, d/m/Y';
+    static $defaultFormat = 'H:i, j/n/Y';
 
     public function __construct($time = null)
     {
@@ -32,6 +32,12 @@ class DateTime extends \DateTime
         }
 
         parent::__construct($time);
+    }
+
+    public static function createFromFormat($format, $time, $timezone = null)
+    {
+        // FIXME - need to use format here
+        return new self($time, $timezone);
     }
 
     /**

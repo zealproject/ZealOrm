@@ -1,7 +1,0 @@
-<phpunit bootstrap="Bootstrap.php" colors="true">
-    <testsuites>
-        <testsuite name="Zeal ORM">
-            <directory>./ZealOrmTest</directory>
-        </testsuite>
-    </testsuites>
-</phpunit>

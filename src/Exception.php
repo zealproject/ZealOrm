@@ -7,13 +7,9 @@
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
-namespace Zeal\Orm\Hydrator;
+namespace Zeal\Orm;
 
-use Zend\Hydrator\AbstractHydrator as ZendAbstractHydrator;
-use Zeal\Orm\DateTime;
-use Zend\Exception;
-
-abstract class AbstractHydrator extends ZendAbstractHydrator
+class Exception
 {
 
 }

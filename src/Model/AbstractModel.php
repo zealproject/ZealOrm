@@ -3,31 +3,32 @@
  * Zeal ORM
  *
  * @link      http://github.com/tfountain
- * @copyright Copyright (c) 2010-2013 Tim Fountain (http://tfountain.co.uk/)
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
  * @license   http://tfountain.co.uk/license New BSD License
  */
 
 namespace Zeal\Orm\Model;
 
 use Zeal\Orm\Orm;
-use Zeal\Orm\Model\Association\AssociationInterface;
+use Zeal\Orm\Association\AssociationInterface;
 use Zeal\Orm\Mapper\MapperInterface;
-use Zend\Hydrator\HydratorAwareInterface;
+use Zeal\Orm\Hydrator\ModelHydrator;
 use Zend\Hydrator\HydratorInterface;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManager;
-use Zend\EventManager\EventManagerAwareInterface;
 use Serializable;
 
 use Zeal\Orm\Model\Hydrator;
 
-
-abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwareInterface, Serializable
+abstract class AbstractModel implements Serializable
 {
     /**
      * @var boolean
      */
     protected $dirty;
+
+    /**
+     * @var HydratorInterface
+     */
+    protected $hydrator;
 
     /**
      * @var null|array
@@ -39,35 +40,6 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
      */
     protected $associationPropertyListeners;
 
-    /**
-     * @var Hydrator
-     */
-    protected $hydrator;
-
-    /**
-     * @var EventManager
-     */
-    protected $events;
-
-
-    public function __construct($data = null)
-    {
-        $this->init();
-
-        if ($data) {
-            $this->populate($data);
-        }
-    }
-
-    /**
-     * Can be overridden for custom functionality. Called by constructor.
-     *
-     * @return void
-     */
-    public function init()
-    {
-
-    }
 
     /**
      * Magic method for returning model data
@@ -82,10 +54,10 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
             // use the get method
             return $this->$getMethodName();
 
-        } else if (property_exists($this, $var)) {
+        } elseif (property_exists($this, $var)) {
             if ($this->$var === null && $this->isAssociation($var)) {
-                $this->$var = $this->getAssociation($var)->loadData();
-            } else if ($this->isAssociationPropertyListener($var)) {
+                $this->$var = $this->getAssociation($var)->buildCollection($this);
+            } elseif ($this->isAssociationPropertyListener($var)) {
                 $mapToAssociation = $this->associationPropertyListeners[$var];
 
                 $association = $this->getAssociation($mapToAssociation);
@@ -97,7 +69,7 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
             return $this->$var;
 
         } else {
-            throw new \Exception("Attempt to access non-existent property '".htmlspecialchars($var)."' on ".get_class($this));
+            throw new \Exception("Attempted to access non-existent property '".htmlspecialchars($var)."' on ".get_class($this));
         }
     }
 
@@ -119,11 +91,11 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
             // use the set method
             return $this->$setMethodName($value);
 
-        } else if (property_exists($this, $var)) {
+        } elseif (property_exists($this, $var)) {
             if ($this->isAssociation($var)) {
                 // TODO
 
-            } else if ($this->isAssociationPropertyListener($var)) {
+            } elseif ($this->isAssociationPropertyListener($var)) {
                 $mapToAssociation = $this->associationPropertyListeners[$var];
 
                 $association = $this->getAssociation($mapToAssociation);
@@ -142,10 +114,9 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     }
 
     /**
-     * Set hydrator
+     * Setter for the hydrator
      *
-     * @param  HydratorInterface $hydrator
-     * @return HydratorAwareInterface
+     * @param HydratorInterface $hydrator
      */
     public function setHydrator(HydratorInterface $hydrator)
     {
@@ -155,57 +126,19 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     }
 
     /**
-     * Retrieve hydrator
+     * Returns the hydrator
      *
-     * @return HydratorInterface
+     * @return Zeal\Orm\Model\Hydrator
      */
     public function getHydrator()
     {
-        if (!$this->hydrator) {
-            $this->hydrator = new Hydrator();
-            //$hydrator->setFields($mapper->getFields()); FIXME
+        if ($this->hydrator === null) {
+            throw new \Exception('No hydrator defined on '.get_class($this));
         }
-
         return $this->hydrator;
     }
 
-    /**
-     * Setter for the event manager
-     *
-     * @param EventManagerInterface $events
-     */
-    public function setEventManager(EventManagerInterface $events)
-    {
-        $events->setIdentifiers(array(
-            get_class($this)
-        ));
-
-        $this->events = $events;
-
-        return $this;
-    }
-
-    /**
-     * Getter for event manager. Creates instance on demand
-     *
-     * @return EventManager
-     */
-    public function getEventManager()
-    {
-        if (null === $this->events) {
-            $this->setEventManager(new EventManager());
-        }
-
-        return $this->events;
-    }
-
-    /**
-     * Hydrate some data into the object (shortcut for the hydrator)
-     *
-     * @param  array  $data
-     * @return void
-     */
-    public function populate(array $data)
+    public function hydrate($data)
     {
         $this->getHydrator()->hydrate($data, $this);
     }
@@ -232,7 +165,6 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         return isset($this->associationPropertyListeners[$var]);
     }
 
-
     /**
      * Getter for association
      *
@@ -242,9 +174,9 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     public function getAssociation($shortname)
     {
         // ensure the association has a source
-        if (!$this->associations[$shortname]->hasSource()) {
-            $this->associations[$shortname]->setSource($this);
-        }
+        // if (!$this->associations[$shortname]->hasSource()) {
+        //     $this->associations[$shortname]->setSource($this);
+        // }
 
         return $this->associations[$shortname];
     }
@@ -257,7 +189,7 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     public function getAssociations()
     {
         if ($this->associations === null) {
-            return array();
+            return [];
         }
 
         return $this->associations;
@@ -298,10 +230,10 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     {
         $associations = $this->getAssociations();
         if (!$associations) {
-            return array();
+            return [];
         }
 
-        $unsavedAssociations = array();
+        $unsavedAssociations = [];
         foreach ($associations as $shortname => $association) {
             if ($association->isDirty()) {
                 $unsavedAssociations[$shortname] = $association;
@@ -311,6 +243,11 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
         return $unsavedAssociations;
     }
 
+    public function toArray()
+    {
+        return $this->getHydrator()->extract($this);
+    }
+
     /**
      * Serialize an object (for Serializeable)
      *
@@ -318,7 +255,7 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
      */
     public function serialize()
     {
-        return serialize($this->getHydrator()->extract($this));
+        return serialize($this->toArray());
     }
 
     /**
@@ -330,5 +267,15 @@ abstract class AbstractModel implements HydratorAwareInterface, EventManagerAwar
     public function unserialize($data)
     {
         $this->getHydrator()->hydrate($data, $this);
+    }
+
+    /**
+     * Returns dirty state
+     *
+     * @return bool
+     */
+    public function isDirty()
+    {
+        return $this->dirty;
     }
 }

@@ -1,47 +1,33 @@
 <?php
+/**
+ * Zeal ORM
+ *
+ * @link      http://github.com/tfountain
+ * @copyright Copyright (c) 2010-2018 Tim Fountain (http://tfountain.co.uk/)
+ * @license   http://tfountain.co.uk/license New BSD License
+ */
 
 namespace Zeal\Orm\ActiveRecord;
 
-use Zeal\Orm\ActiveRecord\AbstractActiveRecord;
-use Zeal\Orm\Collection;
+use Zeal\Orm\Adapter\Zend\Db as DbAdapter;
+use Zeal\Orm\Orm;
 
 class AbstractDbRecord extends AbstractActiveRecord
 {
     /**
-     * The database table name
-     *
-     * @var string
-     */
-    protected static $tableName;
-
-    /**
-     * Name of the primary key column, or an array of column names
-     * (for compound keys)
-     *
-     * @var string|array
-     */
-    protected static $primaryKey;
-
-    /**
-     * [$defaultAdapterOptions description]
      * @var array|null
      */
     protected static $defaultAdapterOptions = array(
         'autoIncrement' => true
     );
 
-    protected static $db;
-
-    protected static $tableGateway;
-
-
-    public function getTableGateway()
+    public static function getStaticAdapter()
     {
-        if (!static::$tableGateway) {
-            static::$tableGateway = new TableGateway($this->getTableName(), static::$db);
-        }
+        $adapter = Orm::getAdapter(DbAdapter::class);
 
-        return static::$tableGateway;
+        $adapter->setOptions(static::getDefaultAdapterOptions());
+
+        return $adapter;
     }
 
     /**
@@ -65,7 +51,7 @@ class AbstractDbRecord extends AbstractActiveRecord
     public static function getTableName()
     {
         if (!static::$tableName) {
-            static::$tableName = static::reflectTableName(get_called_class());
+            static::$tableName = static::reflectTableName(static::class);
         }
 
         return static::$tableName;
@@ -108,26 +94,72 @@ class AbstractDbRecord extends AbstractActiveRecord
     {
         $classDefaults = static::$defaultAdapterOptions;
         if (!is_array($classDefaults)) {
-            $classDefaults = array();
+            $classDefaults = [];
         }
 
         $tableName = static::getTableName();
         $primaryKey = static::getPrimaryKey();
 
-        return array_merge(array(
+        return array_merge([
             'tableName' => $tableName,
             'primaryKey' => $primaryKey
-        ), $classDefaults);
+        ], $classDefaults);
     }
 
-    public function isNewRecord()
+    /**
+     * Calculate the entity's fields by inspecting the table structure
+     *
+     * TODO: cache this!
+     *
+     * @return array
+     */
+    protected static function getFieldsFromTableStructure()
     {
+        $db = static::getStaticAdapter()->getDb();
+        $statement = $db->query("DESCRIBE ".static::getTableName());
+        $result = $statement->execute();
 
+        $fields = [];
+        foreach ($result as $column) {
+            if (strpos($column['Type'], '(') !== false) {
+                $type = substr($column['Type'], 0, strpos($column['Type'], '('));
+            } else {
+                $type = $column['Type'];
+            }
+            if (in_array($type, ['int', 'mediumint'])) {
+                $type = 'integer';
+            } else if (in_array($type, ['timestamp', 'datetime'])) {
+                $type = 'datetime';
+            } else {
+                // FIXME: need mapping for more types here
+                $type = 'string';
+            }
+
+            $fields[$column['Field']] = $type;
+        }
+
+        return $fields;
+    }
+
+    /**
+     * Returns the model's fields
+     *
+     * @return array
+     */
+    public function getFields()
+    {
+        if (!static::$fields) {
+            $fields = static::getFieldsFromTableStructure();
+
+            static::$fields = $fields;
+        }
+
+        return static::$fields;
     }
 
     public static function find($id)
     {
-        return static::where(array('id' => $id))->getFirstRow();
+        return static::where([static::getPrimaryKey() => $id])->getFirstRow();
     }
 
     public static function first()
@@ -161,7 +193,7 @@ class AbstractDbRecord extends AbstractActiveRecord
         return $collection;
     }
 
-    public static function order($orderSql)
+    public static function order($order)
     {
         $collection = static::buildCollection();
         $collection->getQuery()->order($orderSql);
@@ -204,50 +236,5 @@ class AbstractDbRecord extends AbstractActiveRecord
         $data = $this->getHydrator()->extract($this);
 
         return $this->getAdapter()->delete($data);
-    }
-
-    /**
-     * Calculate the entity's fields by inspecting the table structure
-     *
-     * TODO: cache this!
-     *
-     * @return array
-     */
-    protected static function getFieldsFromTableStructure()
-    {
-        $db = static::getStaticAdapter()->getDb();
-        $statement = $db->query("DESCRIBE ".static::getTableName());
-        $result = $statement->execute();
-
-        $fields = array();
-        foreach ($result as $column) {
-            $type = substr($column['Type'], 0, strpos($column['Type'], '('));
-            if ($type == 'int') {
-                $type = 'integer';
-            } else {
-                // FIXME: need mapping for more types here
-                $type = 'string';
-            }
-
-            $fields[$column['Field']] = $type;
-        }
-
-        return $fields;
-    }
-
-    /**
-     * Returns the model's fields
-     *
-     * @return array
-     */
-    public function getFields()
-    {
-        if (!static::$fields) {
-            $fields = static::getFieldsFromTableStructure();
-
-            static::$fields = $fields;
-        }
-
-        return static::$fields;
     }
 }

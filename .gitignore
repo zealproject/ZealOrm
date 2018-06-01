@@ -10,3 +10,6 @@ nbproject
 .idea
 .project
 .settings
+
+# other files
+clover.xml
